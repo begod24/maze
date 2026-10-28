@@ -1,0 +1,69 @@
+# --- Unity generated ---
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# --- Addressables build output ---
+/ServerData/
+/[Aa]ssets/[Ss]treamingAssets/aa/
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+
+# --- Asset Store tools ---
+/[Aa]ssets/AssetStoreTools*
+
+# --- IDE and solution files (Unity regenerates them) ---
+.vs/
+.vscode/
+.idea/
+.gradle/
+*.csproj
+*.unityproj
+*.sln
+*.slnx
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# --- Builds and crash reports ---
+sysinfo.txt
+crashlytics-buildid.txt
+*.apk
+*.aab
+*.app
+*.unitypackage
+*_BurstDebugInformation_DoNotShip/
+
+# --- Steamworks local files ---
+steam_appid.txt
+
+# --- Blender ---
+*.blend1
+*.blend2
+__pycache__/
+
+# --- Claude Code local (personal) settings ---
+.claude/settings.local.json
+CLAUDE.local.md
+
+# --- OS ---
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini

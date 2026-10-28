@@ -1,0 +1,22 @@
+{
+    "name": "NoWayOut.Voice",
+    "rootNamespace": "NoWayOut.Voice",
+    "references": [
+        "NoWayOut.Core",
+        "NoWayOut.Infrastructure",
+        "UniTask",
+        "VContainer",
+        "Unity.Services.Authentication",
+        "Unity.Services.Core",
+        "Unity.Services.Vivox"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

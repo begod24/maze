@@ -1,0 +1,30 @@
+{
+    "name": "NoWayOut.Gameplay",
+    "rootNamespace": "NoWayOut.Gameplay",
+    "references": [
+        "NoWayOut.Core",
+        "NoWayOut.Infrastructure",
+        "NoWayOut.Networking",
+        "NoWayOut.Voice",
+        "UniTask",
+        "VContainer",
+        "Unity.AI.Navigation",
+        "Unity.Cinemachine",
+        "Unity.Collections",
+        "Unity.InputSystem",
+        "Unity.Netcode.Runtime",
+        "Unity.RenderPipelines.Core.Runtime",
+        "Unity.RenderPipelines.HighDefinition.Runtime",
+        "PrimeTween.Runtime",
+        "Unity.Localization"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

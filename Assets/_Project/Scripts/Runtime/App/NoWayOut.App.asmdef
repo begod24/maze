@@ -1,0 +1,24 @@
+{
+    "name": "NoWayOut.App",
+    "rootNamespace": "NoWayOut.App",
+    "references": [
+        "NoWayOut.Core",
+        "NoWayOut.Infrastructure",
+        "NoWayOut.Networking",
+        "NoWayOut.Voice",
+        "NoWayOut.Gameplay",
+        "NoWayOut.UI",
+        "UniTask",
+        "VContainer",
+        "Unity.Netcode.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,21 @@
+{
+    "name": "NoWayOut.Infrastructure",
+    "rootNamespace": "NoWayOut.Infrastructure",
+    "references": [
+        "NoWayOut.Core",
+        "UniTask",
+        "UniTask.Addressables",
+        "VContainer",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,25 @@
+{
+    "name": "NoWayOut.Networking",
+    "rootNamespace": "NoWayOut.Networking",
+    "references": [
+        "NoWayOut.Core",
+        "NoWayOut.Infrastructure",
+        "UniTask",
+        "VContainer",
+        "Unity.Collections",
+        "Unity.Netcode.Runtime",
+        "Unity.Networking.Transport",
+        "Unity.Services.Authentication",
+        "Unity.Services.Core",
+        "Unity.Services.Multiplayer"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

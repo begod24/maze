@@ -1,0 +1,24 @@
+{
+    "name": "NoWayOut.UI",
+    "rootNamespace": "NoWayOut.UI",
+    "references": [
+        "NoWayOut.Core",
+        "NoWayOut.Infrastructure",
+        "NoWayOut.Networking",
+        "NoWayOut.Gameplay",
+        "UniTask",
+        "VContainer",
+        "Unity.InputSystem",
+        "PrimeTween.Runtime",
+        "Unity.Localization"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

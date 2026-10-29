@@ -1,0 +1,87 @@
+.screen {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transition-property: opacity, translate;
+    transition-duration: var(--duration-normal);
+    transition-timing-function: ease-out;
+}
+
+.screen--hidden {
+    opacity: 0;
+    translate: 0 16px;
+}
+
+.screen--centered {
+    justify-content: center;
+    align-items: center;
+}
+
+.panel {
+    width: var(--panel-width);
+    padding: var(--spacing-large);
+    background-color: var(--color-panel);
+    border-width: 1px;
+    border-color: var(--color-border);
+}
+
+.row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-medium);
+}
+
+.text {
+    color: var(--color-text);
+    font-size: var(--font-size-body);
+    margin: var(--spacing-small) 0;
+    -unity-font-definition: url("../Fonts/IBMPlexMono/IBMPlexMono-Regular SDF.asset");
+}
+
+.text--title {
+    color: var(--color-accent);
+    font-size: var(--font-size-large);
+    letter-spacing: var(--letter-spacing-wide);
+    -unity-font-definition: url("../Fonts/Oswald/Oswald-VariableFont_wght SDF.asset");
+}
+
+.text--dim {
+    color: var(--color-text-dim);
+}
+
+.text--error {
+    color: var(--color-danger);
+}
+
+.status--hidden {
+    opacity: 0;
+}
+
+.menu-button {
+    min-width: 200px;
+    margin: var(--spacing-small) 0;
+    padding: var(--spacing-small) var(--spacing-large);
+    color: var(--color-text);
+    font-size: var(--font-size-body);
+    background-color: var(--color-transparent);
+    border-width: 1px;
+    border-radius: 0;
+    border-color: var(--color-border);
+    -unity-font-definition: url("../Fonts/IBMPlexMono/IBMPlexMono-Regular SDF.asset");
+    transition-property: background-color, color, border-color;
+    transition-duration: var(--duration-fast);
+}
+
+.menu-button:hover,
+.menu-button:focus {
+    color: var(--color-accent);
+    background-color: var(--color-accent-soft);
+    border-color: var(--color-accent);
+}
+
+.menu-button:disabled {
+    opacity: 0.4;
+}

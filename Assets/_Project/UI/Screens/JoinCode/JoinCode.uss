@@ -1,0 +1,16 @@
+.join-code__field {
+    margin: var(--spacing-medium) 0;
+}
+
+.join-code__field > .unity-text-field__input {
+    padding: var(--spacing-small) var(--spacing-medium);
+    color: var(--color-accent);
+    font-size: var(--font-size-large);
+    letter-spacing: var(--letter-spacing-wide);
+    -unity-text-align: middle-center;
+    -unity-font-definition: url("../../Fonts/IBMPlexMono/IBMPlexMono-Regular SDF.asset");
+    background-color: var(--color-transparent);
+    border-width: 1px;
+    border-radius: 0;
+    border-color: var(--color-border);
+}

@@ -54,6 +54,9 @@ namespace NoWayOut.App.Scopes
         {
             builder.Register<BootstrapState>(Lifetime.Singleton);
             builder.Register<MainMenuState>(Lifetime.Singleton);
+            builder.Register<LobbyState>(Lifetime.Singleton);
+            builder.Register<DevSessionState>(Lifetime.Singleton);
+            builder.Register<GameplayState>(Lifetime.Singleton);
         }
 
 

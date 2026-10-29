@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="JoinCode.uss" />
+    <ui:VisualElement name="join-code" class="screen screen--hidden screen--centered">
+        <ui:VisualElement class="panel">
+            <ui:Label name="title-label" class="text text--title" />
+            <ui:TextField name="code-field" class="join-code__field" max-length="16" />
+            <ui:Label name="status-label" class="text text--dim status--hidden" />
+            <ui:VisualElement class="row">
+                <ui:Button name="back-button" class="menu-button" />
+                <ui:Button name="join-button" class="menu-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

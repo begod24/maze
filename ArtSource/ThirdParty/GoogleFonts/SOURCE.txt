@@ -1,0 +1,10 @@
+Oswald
+Source: https://github.com/google/fonts/tree/main/ofl/oswald (file Oswald[wght].ttf, saved as Oswald-VariableFont_wght.ttf)
+License: SIL Open Font License 1.1 (OFL.txt)
+
+IBM Plex Mono
+Source: https://github.com/google/fonts/tree/main/ofl/ibmplexmono (IBMPlexMono-Regular.ttf)
+License: SIL Open Font License 1.1 (OFL.txt)
+
+Downloaded: 2026-10-28
+Used in Unity: Assets/_Project/UI/Fonts/

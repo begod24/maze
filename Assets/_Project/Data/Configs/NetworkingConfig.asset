@@ -13,3 +13,6 @@ MonoBehaviour:
   m_Name: NetworkingConfig
   m_EditorClassIdentifier: NoWayOut.Networking::NoWayOut.Networking.NetworkingConfig
   maxPlayers: 4
+  devQuickStart: 0
+  devSessionPrefix: nwo-dev-
+  devJoinDelaySeconds: 2

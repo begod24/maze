@@ -1,6 +1,10 @@
 using NoWayOut.Gameplay;
+using NoWayOut.Gameplay.Player;
+using NoWayOut.Gameplay.World;
 using NoWayOut.Networking.Spawning;
 using NoWayOut.UI;
+using NoWayOut.UI.Common;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
@@ -8,6 +12,12 @@ namespace NoWayOut.App.Scopes
 {
     public sealed class GameplayLifetimeScope : LifetimeScope
     {
+        [SerializeField] private PlayerConfig playerConfig;
+        [SerializeField] private FloorConfig floorConfig;
+        [SerializeField] private WorldModuleCatalog moduleCatalog;
+        [SerializeField] private UIScreensConfig uiScreensConfig;
+
+
         protected override void Configure(IContainerBuilder builder)
         {
             InstallGameplay(builder);
@@ -18,13 +28,13 @@ namespace NoWayOut.App.Scopes
 
         private void InstallGameplay(IContainerBuilder builder)
         {
-            new GameplayInstaller().Install(builder);
+            new GameplayInstaller(playerConfig, floorConfig, moduleCatalog).Install(builder);
         }
 
 
         private void InstallUI(IContainerBuilder builder)
         {
-            new UIInstaller().Install(builder);
+            new UIInstaller(uiScreensConfig).Install(builder);
         }
 
 

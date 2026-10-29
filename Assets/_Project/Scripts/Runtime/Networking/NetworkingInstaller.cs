@@ -1,3 +1,5 @@
+using NoWayOut.Networking.Development;
+using NoWayOut.Networking.Scenes;
 using NoWayOut.Networking.Sessions;
 using Unity.Netcode;
 using VContainer;
@@ -23,6 +25,8 @@ namespace NoWayOut.Networking
             RegisterConfig(builder);
             RegisterNetworkManager(builder);
             RegisterSessionService(builder);
+            RegisterDevSession(builder);
+            RegisterNetworkSceneLoader(builder);
         }
 
 
@@ -41,6 +45,18 @@ namespace NoWayOut.Networking
         private void RegisterSessionService(IContainerBuilder builder)
         {
             builder.Register<ISessionService, SessionService>(Lifetime.Singleton);
+        }
+
+
+        private void RegisterDevSession(IContainerBuilder builder)
+        {
+            builder.Register<IDevSession, DevSession>(Lifetime.Singleton);
+        }
+
+
+        private void RegisterNetworkSceneLoader(IContainerBuilder builder)
+        {
+            builder.RegisterEntryPoint<NetworkSceneLoader>().As<INetworkSceneLoader>();
         }
     }
 }

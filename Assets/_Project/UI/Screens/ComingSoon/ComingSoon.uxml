@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="ComingSoon.uss" />
+    <ui:VisualElement name="coming-soon" class="screen screen--hidden screen--centered">
+        <ui:VisualElement class="panel">
+            <ui:Label name="title-label" class="text text--title" />
+            <ui:Label name="message-label" class="text text--dim coming-soon__message" />
+            <ui:Button name="back-button" class="menu-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="MainMenu.uss" />
+    <ui:VisualElement name="main-menu" class="screen main-menu" picking-mode="Ignore">
+        <ui:Label name="title-label" class="main-menu__title" picking-mode="Ignore" />
+        <ui:VisualElement name="tv-buttons" class="main-menu__tv-buttons" picking-mode="Ignore">
+            <ui:Button name="create-button" class="tv-button" />
+            <ui:Button name="join-button" class="tv-button" />
+            <ui:Button name="settings-button" class="tv-button" />
+            <ui:Button name="credits-button" class="tv-button" />
+            <ui:Button name="quit-button" class="tv-button" />
+        </ui:VisualElement>
+        <ui:Label name="status-label" class="main-menu__status main-menu__status--hidden" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

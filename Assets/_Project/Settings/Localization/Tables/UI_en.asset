@@ -16,8 +16,104 @@ MonoBehaviour:
     m_Code: en
   m_SharedData: {fileID: 11400000, guid: 10ee4b9fcd7b7422ea3143deedd62e1c, type: 2}
   m_Metadata:
-    m_Items: []
-  m_TableData: []
+    m_Items:
+    - rid: 2168771946946494640
+  m_TableData:
+  - m_Id: 103119139000320
+    m_Localized: NO WAY OUT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119185137664
+    m_Localized: Create
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331968
+    m_Localized: Join
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331969
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331970
+    m_Localized: Credits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331971
+    m_Localized: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331972
+    m_Localized: "Creating a room\u2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331973
+    m_Localized: Couldn't create a room
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331974
+    m_Localized: Join by code
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331975
+    m_Localized: Join
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331976
+    m_Localized: "Connecting\u2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331977
+    m_Localized: Enter the room code
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331978
+    m_Localized: Couldn't join. Check the code
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331979
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331980
+    m_Localized: Room
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331981
+    m_Localized: Room code
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331982
+    m_Localized: Copy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331983
+    m_Localized: 'Players: {count}/{max}'
+    m_Metadata:
+      m_Items:
+      - rid: 2168771946946494640
+  - m_Id: 103119189331984
+    m_Localized: Waiting for the host to start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331985
+    m_Localized: Start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331986
+    m_Localized: Leave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331987
+    m_Localized: Coming soon
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 2168771946946494640
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:
+        - id: 103119189331983

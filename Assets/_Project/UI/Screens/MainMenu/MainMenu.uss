@@ -1,0 +1,69 @@
+.main-menu__title {
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    color: var(--color-accent);
+    font-size: var(--font-size-title);
+    letter-spacing: var(--letter-spacing-title);
+    -unity-text-align: middle-center;
+    -unity-font-definition: url("../../Fonts/Oswald/Oswald-VariableFont_wght SDF.asset");
+    transition-property: opacity;
+    transition-duration: var(--duration-normal);
+}
+
+.main-menu__tv-buttons {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.tv-button {
+    position: absolute;
+    margin: 0;
+    padding: 0 0 var(--spacing-medium) 0;
+    color: var(--color-text-dim);
+    font-size: var(--font-size-body);
+    letter-spacing: var(--letter-spacing-wide);
+    -unity-text-align: lower-center;
+    -unity-font-definition: url("../../Fonts/IBMPlexMono/IBMPlexMono-Regular SDF.asset");
+    background-color: var(--color-transparent);
+    border-width: 0;
+    transition-property: color, opacity;
+    transition-duration: var(--duration-fast);
+}
+
+.tv-button:hover,
+.tv-button:active,
+.tv-button:focus {
+    background-color: var(--color-transparent);
+}
+
+.tv-button--hovered {
+    color: var(--color-accent);
+}
+
+.main-menu--focused .main-menu__title,
+.main-menu--focused .tv-button {
+    opacity: 0;
+}
+
+.main-menu__status {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 96px;
+    color: var(--color-accent);
+    font-size: var(--font-size-large);
+    letter-spacing: var(--letter-spacing-wide);
+    -unity-text-align: middle-center;
+    -unity-font-definition: url("../../Fonts/IBMPlexMono/IBMPlexMono-Regular SDF.asset");
+    transition-property: opacity;
+    transition-duration: var(--duration-normal);
+}
+
+.main-menu__status--hidden {
+    opacity: 0;
+}

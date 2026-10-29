@@ -131,6 +131,7 @@ NetworkObject instance = networkManager.SpawnManager.InstantiateAndSpawn(
     rotation: rotation);
 ```
 - Spawning works only while `GameplayLifetimeScope` is alive. Its `RegisterNetworkPrefabInjection()` routes NGO's instantiation through `IObjectResolver`, so host and client copies both get `Construct` called.
+- **Spawn for a client only once it has loaded the scene**, or its copy is created before its scope exists and misses injection. Spawn objects that must exist from the start in server handlers of `networkManager.SceneManager.OnLoadComplete` (filter by scene name, the host is included) and `OnSynchronizeComplete` (late joiners). Subscribe in `IInitializable.Initialize`, which runs while the scope is built. `PlayerSpawner` is the reference.
 - Player objects use `isPlayerObject: true` and the client's id as owner. The NetworkManager's `PlayerPrefab` stays empty on purpose.
 - Despawn with `networkObject.Despawn(true)`.
 - **In-scene placed** `NetworkObject`s that need injection go into the scene scope's `autoInjectGameObjects`.

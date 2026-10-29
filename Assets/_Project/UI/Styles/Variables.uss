@@ -1,0 +1,23 @@
+:root {
+    --color-bg: rgb(6, 7, 9);
+    --color-panel: rgba(8, 10, 12, 0.9);
+    --color-text: rgb(214, 218, 224);
+    --color-text-dim: rgb(128, 136, 146);
+    --color-accent: rgb(236, 230, 210);
+    --color-accent-soft: rgba(236, 230, 210, 0.12);
+    --color-danger: rgb(204, 72, 64);
+    --color-border: rgba(214, 218, 224, 0.25);
+    --color-transparent: rgba(0, 0, 0, 0);
+    --font-size-title: 72px;
+    --font-size-large: 34px;
+    --font-size-body: 22px;
+    --font-size-small: 16px;
+    --letter-spacing-title: 18px;
+    --letter-spacing-wide: 6px;
+    --spacing-small: 8px;
+    --spacing-medium: 16px;
+    --spacing-large: 32px;
+    --panel-width: 680px;
+    --duration-fast: 0.15s;
+    --duration-normal: 0.35s;
+}

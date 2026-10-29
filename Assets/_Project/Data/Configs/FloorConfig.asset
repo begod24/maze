@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4e79dcd5fd8bba4c845dff736cbc576, type: 3}
+  m_Name: FloorConfig
+  m_EditorClassIdentifier: NoWayOut.Gameplay::NoWayOut.Gameplay.World.FloorConfig
+  cellSize: 4
+  seed: 0
+  loopStartChance: 0.5
+  bridgeRowsMin: 8
+  bridgeRowsMax: 11
+  loopRowsMin: 2
+  loopRowsMax: 4
+  separationRowsMin: 4
+  separationRowsMax: 6
+  minLevel: -3
+  maxLevel: 3
+  stairChance: 0.25
+  doorwayChance: 0.12
+  maxDoorwaysPerLane: 1
+  maxAttempts: 64

@@ -1,7 +1,9 @@
 {
     "name": "NoWayOut.Editor",
     "rootNamespace": "NoWayOut.Editor",
-    "references": [],
+    "references": [
+        "NoWayOut.Gameplay"
+    ],
     "includePlatforms": [
         "Editor"
     ],

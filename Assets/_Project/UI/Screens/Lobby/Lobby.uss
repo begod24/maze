@@ -1,0 +1,9 @@
+.lobby__code {
+    color: var(--color-accent);
+    font-size: var(--font-size-large);
+    letter-spacing: var(--letter-spacing-wide);
+}
+
+.lobby__item--hidden {
+    display: none;
+}

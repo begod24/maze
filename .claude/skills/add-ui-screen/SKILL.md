@@ -7,9 +7,9 @@ description: Add a UI Toolkit screen or HUD element to No Way Out — UXML/USS i
 
 Read `Docs/TechnicalOverview.md` §15–16 and `Docs/GDD.md` §11. For detailed UXML/USS syntax, the `unity:ui-uitk` skill can help, but **this project's structure wins** when they disagree.
 
-## 0. Foundation (only if `IScreenService` doesn't exist yet)
+## 0. Foundation [exists since the main menu]
 
-The first screen builds these. Show the plan to the user before doing it.
+All of this is built. Reuse it and only extend it (new tokens in `Variables.uss`, shared classes in `Common.uss`). Fonts: Oswald (`.text--title`) and IBM Plex Mono (`.text`, buttons), both with dynamic SDF font assets in `UI/Fonts/`. For reference, the foundation is:
 - `Assets/_Project/UI/Panel/GamePanelSettings.asset`: PanelSettings, Scale With Screen Size, 1920×1080, match 0.5, a theme `GameTheme.tss` (default runtime theme + `Styles/Common.uss`).
 - `Assets/_Project/UI/Styles/Variables.uss`: `:root` tokens for colors (`--color-bg`, `--color-text`, `--color-accent`, `--color-danger`), font sizes, spacing, and durations (`--duration-fast`, `--duration-normal`).
 - `Assets/_Project/UI/Styles/Common.uss` with `.screen` (full-size, `transition-property: opacity, translate; transition-duration: var(--duration-normal)`), `.screen--hidden` (`opacity: 0; translate: 0 16px; display` handled by code after the transition), and buttons and labels.
@@ -38,7 +38,8 @@ The first screen builds these. Show the plan to the user before doing it.
   - exposes `Set...` methods.
   
   It has no services and no logic. It gets the Presenter through `[Inject] private void Construct(<Screen>Presenter presenter)` and calls `presenter.Attach(this)` / `presenter.Detach()` in `OnEnable`/`OnDisable`.
-- **Presenter:** constructor-injected services and the event bus. It subscribes to View events and service/bus events, and pushes data into the View. Register it in `UIInstaller` (Scoped).
+- **Presenter:** constructor-injected services and the event bus. It subscribes to View events and service/bus events, and pushes data into the View. Register it (Scoped) in the installer of the scene that uses it: `MainMenuInstaller` for menu screens, `UIInstaller` for screens every scene needs.
+- After an `await`, a presenter checks that its view is still attached (`view != null`): the scene may have unloaded meanwhile.
 - **Prefab:** a `UIDocument` with `GamePanelSettings`, the UXML as source, and `sortingOrder` (HUD 0, menus 10, popups 20). Add the prefab to `UIScreensConfig`.
 
 ## 2. Text: EN + RU, always
@@ -62,7 +63,8 @@ The first screen builds these. Show the plan to the user before doing it.
 
 ## 3. Showing it
 
-- An App state (or a scene flow state) calls `screenService.Show<<Screen>View>()` in `EnterAsync` and `Hide` in `ExitAsync`.
+- `IScreenService` is Scoped per scene scope, so **the scene's own presenters** (or that scene's state machine) call `screenService.Show<<Screen>View>()` / `Hide`. Root App states can't resolve it. Example: `MainMenuPresenter` shows `JoinCodeView`, `ComingSoonView` and `LobbyView`.
+- A UI that lives in 3D (like the menu TVs) puts transparent UI Toolkit buttons over the world objects (project their bounds each frame), so input, hover and focus stay plain UI Toolkit events. See `MainMenuView`.
 - A button that should change the flow calls a **service** from the Presenter (e.g. `ISessionService.HostAsync`) or publishes an intent event. It never calls App.
 
 ## 4. Animation

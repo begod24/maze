@@ -43,6 +43,7 @@ Assets/AddressableAssetsData/       Addressables-owned (groups, including the Lo
 ArtSource/                          Blender sources, build scripts and third-party source files. Unity never imports them
 Docs/                               GDD, TechnicalOverview, CodeStyle, Decisions
 Docs/References/ConceptArt/         the original concept boards (key art, entities, UI, characters)
+Docs/References/GDD_v2_Concept.pdf  the second concept document (the source of the GDD)
 .claude/skills/                     project skills
 .gitignore, .gitattributes          what stays out of git, line endings, Unity Smart Merge, LFS patterns
 ```
@@ -86,6 +87,11 @@ Docs/References/ConceptArt/         the original concept boards (key art, entiti
 
 ## Tools and gotchas
 
+- **The dev machine is Windows 11.** Shell commands run in Git Bash (the Bash tool) or PowerShell.
+  - Unity Editor: `C:\Users\Lenovo\Documents\unity\6000.3.24f1\Editor\Unity.exe`.
+  - Editor.log: `%LOCALAPPDATA%\Unity\Editor\Editor.log`.
+  - Blender: `C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe` (5.2.3 LTS).
+  - In C# strings, write paths with forward slashes.
 - **Unity MCP (`unity-mcp`).** Use it to refresh, read the console, run tests and create assets, prefabs and scenes (`Unity_RunCommand`). Its quirks are in the `unity-compile-check` skill.
 - **`VContainerSettings.DisableScriptModifier` must stay on.** Otherwise VContainer overwrites any new `*LifetimeScope.cs` written from outside the editor with its empty template.
 - **`.meta` files.** Unity creates `.meta` files for `.cs` files written from the shell on refresh. Never hand-write a `.meta`.

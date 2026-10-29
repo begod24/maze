@@ -45,7 +45,7 @@ The repository is `github.com/begod24/maze` (branch `main`), and its root is the
 ```
 Assets/            Unity content (see §4)
 ArtSource/         Blender sources (.blend), build scripts and third-party source files; Unity never imports them
-Docs/              GDD.md (RU), TechnicalOverview.md, CodeStyle.md, Decisions.md, References/ConceptArt/
+Docs/              GDD.md (RU), TechnicalOverview.md, CodeStyle.md, Decisions.md, References/ (ConceptArt/, GDD_v2_Concept.pdf)
 .claude/skills/    project skills for Claude
 CLAUDE.md          rules for Claude
 .gitignore         Unity caches (Library, Temp, Logs, UserSettings), IDE files, builds, Blender backups, OS files
@@ -55,7 +55,7 @@ Packages/, ProjectSettings/
 
 - **Git LFS** stores models (`.fbx`, `.blend`), textures and images, Substance files, audio, video, fonts, native plugins, archives, PDFs and `LightingData.asset`. Every other Unity asset is text (Force Text serialization), so it diffs and merges normally.
 - **Empty folders** keep a `.gitkeep` so a fresh clone still has them and Unity doesn't delete their `.meta`.
-- **Unity Smart Merge** is optional. It works once `merge.unityyamlmerge.driver` points to `Unity.app/Contents/Helpers/UnityYAMLMerge` in the user's git config.
+- **Unity Smart Merge** is optional. It works once `merge.unityyamlmerge.driver` in the user's git config points to `<Unity>/Editor/Data/Tools/UnityYAMLMerge.exe` (here `C:/Users/Lenovo/Documents/unity/6000.3.24f1/Editor/Data/Tools/UnityYAMLMerge.exe`), e.g. `git config merge.unityyamlmerge.driver "'<path>' merge -h -p --force %O %B %A %A"`.
 
 ---
 
@@ -68,7 +68,7 @@ Assets/
     Audio/                       Ambience, Music, SFX
     Data/                        ScriptableObject assets: Configs, Entities, Illusions, Items, World
     Prefabs/                     Entities, Interactables, Items, Network, Player, Scopes, UI, World
-    Scenes/                      Boot, MainMenu, Gameplay (build order) and Sandbox/ for dev scenes
+    Scenes/                      Boot, MainMenu, Gameplay (build order) and Sandbox/ for dev scenes (OutdoorsScene is the HDRP template scene, kept as a lighting reference)
     Scripts/
       Runtime/<Assembly>/        one folder per runtime assembly (§5)
       Editor/                    NoWayOut.Editor
@@ -78,12 +78,12 @@ Assets/
   Settings/                      HDRP-owned (quality tiers, global settings, default resources). Don't move
   DefaultNetworkPrefabs.asset    NGO-owned default network prefab list. Don't move
   AddressableAssetsData/         Addressables-owned (created by Localization; holds the Localization groups). Don't move
-  OutdoorsScene.unity            HDRP template scene. Move it to Scenes/Sandbox once it has been saved
 ```
 
 - **Package-owned assets stay where the package expects them.** HDRP stores `m_ProjectSettingFolderPath: Settings/HDRPDefaultResources`. NGO generates `Assets/DefaultNetworkPrefabs.asset`. Addressables creates `Assets/AddressableAssetsData/` on first use.
 - **Third-party store assets** keep their own root folders and are never edited.
 - Folders inside `Art/` and `Prefabs/` are grouped by **domain** (Entities, Environment…). Inside a domain, one folder per asset holds its model, materials and textures together (`Art/Entities/Observer/...`).
+- **Modular kits share one folder**, with no folder per piece: level modules are `Art/Environment/Modules/<Name>.fbx`, `Prefabs/World/Modules/<Name>.prefab` and `Data/World/Modules/<Name>.asset`. They use the shared materials in `Art/Materials/Environment/`.
 
 ### Asset naming
 
@@ -100,6 +100,7 @@ Assets/
 | Audio | `SFX_`, `MUS_`, `AMB_`, `VO_` | `SFX_DoorCreak_01` |
 | ScriptableObject asset | named after the thing + type | `NetworkingConfig`, `ObserverEntity` |
 | Scene | PascalCase | `Gameplay.unity`, `Sandbox/IllusionTest.unity` |
+| Hand-written shader | PascalCase `.shader`, shader path `NoWayOut/<Name>` | `CRTScreen.shader` (`NoWayOut/CRT Screen`) |
 
 ---
 
@@ -134,13 +135,14 @@ Rules:
 | Scope | Where | Lives | Holds |
 |---|---|---|---|
 | `ProjectLifetimeScope` (root) | `Prefabs/Scopes/ProjectLifetimeScope.prefab`, referenced by `Settings/VContainerSettings.asset` (a preloaded asset) | Whole app (DontDestroyOnLoad), built before the first scene | Infrastructure, Networking and Voice installers, `GameStateMachine` and app states, `GameEntryPoint` |
-| `GameplayLifetimeScope` | Object in `Scenes/Gameplay.unity` | While the Gameplay scene is loaded | Gameplay and UI installers, network prefab injection |
-| `MainMenuLifetimeScope` [PLANNED] | `Scenes/MainMenu.unity` | While the menu is loaded | Menu UI |
+| `GameplayLifetimeScope` | Object in `Scenes/Gameplay.unity` | While the Gameplay scene is loaded | Gameplay and UI installers (`PlayerConfig`, `UIScreensConfig`), network prefab injection |
+| `MainMenuLifetimeScope` | Object in `Scenes/MainMenu.unity` | While the menu is loaded | `UIInstaller` (`UIScreensConfig`) and `MainMenuInstaller` (`MainMenuConfig`, menu presenters). Auto-injects `MainMenuRoom` |
 
 Scene scopes become children of the root automatically, because the root is set in `VContainerSettings`.
 
 ### Installers
 Each assembly has one `<Module>Installer : IInstaller` that registers that module's types. Scopes only call installers (`new NetworkingInstaller(...).Install(builder)`), so a module's internals never leak into App.
+- Exception: a scene-only feature set inside an assembly gets its own installer next to it, e.g. `MainMenuInstaller` (UI) for the menu scene. `UIInstaller` keeps what every scene with UI needs (`IScreenService`).
 
 ### Lifetimes
 
@@ -174,11 +176,17 @@ A plain `Object.Instantiate` doesn't inject.
 
 ```
 GameEntryPoint (root, IAsyncStartable)
-  → BootstrapState → MainMenuState (loads MainMenu)                     [DONE]
-  → LobbyState (session created or joined, players ready)               [PLANNED]
-  → GameplayState (server loads Gameplay through NetworkSceneManager)   [PLANNED]
-  → back to LobbyState or MainMenuState                                 [PLANNED]
+  → BootstrapState → MainMenuState (loads MainMenu, input UI)           [DONE]
+  → BootstrapState → DevSessionState (editor quick start, §10)          [DONE]
+  → LobbyState (on SessionStartedEvent: room created or joined by code) [DONE]
+  → GameplayState (host: GameStartRequestedEvent; client: the host's
+                   Gameplay load starts, NetworkSceneLoadStartedEvent)  [DONE]
+  → MainMenuState on SessionEndedEvent (leave, host gone, kicked)       [DONE]
 ```
+
+- `MainMenuState` also handles `QuitRequestedEvent` (quits, or stops Play Mode in the editor).
+- `LobbyState` only routes events; the lobby screen itself lives in the MainMenu scene (§15). Readiness, difficulty and group size are [PLANNED].
+- `GameplayState` calls `INetworkSceneLoader.LoadAsync(Gameplay)`. The server starts the load, and every peer waits until Gameplay is the active scene. Then it switches input to `Gameplay` (cursor locked). Leaving the state cancels the wait and switches input off.
 
 - `StateMachine` (Core) runs `IState` / `IPayloadedState<T>` with `EnterAsync` / `ExitAsync`. It exits the active state before entering the next one. States come from `IStateFactory`, which resolves them from the scope's container.
 - `GameStateMachine` (App) is the app-level machine in the root scope. States are registered as Singletons next to it.
@@ -186,6 +194,7 @@ GameEntryPoint (root, IAsyncStartable)
 - States orchestrate only (load, switch input, show screens, call services). The logic lives in services.
 - `BootstrapState` goes on to the menu only when the game started in `Boot`. Any other scene opened directly keeps running alone, which is handy for sandbox scenes. `No Way Out → Play From Boot Scene` (on by default) makes Play always start from `Boot`.
 - **UI never references App.** UI calls lower-layer services (e.g. `ISessionService.HostAsync`) or publishes intent events. App states react to services and events.
+- **Root states can't reach scene-scoped UI.** `IScreenService` is Scoped per scene scope, so screens inside a scene are shown by that scene's presenters (e.g. `MainMenuPresenter`), not by root App states.
 
 ---
 
@@ -227,10 +236,19 @@ GameEntryPoint (root, IAsyncStartable)
 - **Listen server**: the host is both server and client. Up to `NetworkingConfig.maxPlayers` (4).
 - `ISessionService` (Networking):
   - `HostAsync` creates a private session with Relay, and the SDK starts NGO as host.
-  - `JoinAsync(code)` joins by code, and the SDK starts NGO as client.
+  - `JoinAsync(code)` joins by code (trimmed, upper-cased), and the SDK starts NGO as client.
   - `LeaveAsync` leaves the session and shuts NGO down.
   - Steam lobbies and invites will come later behind the same interface [PLANNED].
+  - `CreateOrJoinAsync(sessionId)` joins a public session with that ID or creates it (the creator becomes the host). Used by the dev quick start.
+  - Leaving happens on `LeaveAsync` and when the root scope is disposed (quitting, or leaving Play Mode).
+  - It exposes `IsHost`, `JoinCode`, `PlayerCount`, `MaxPlayers` and publishes bus events (`Networking/Events`): `SessionStartedEvent(isHost)`, `SessionChangedEvent` (players joined or left), `SessionEndedEvent` (left, removed, session deleted, or NGO stopped).
+- **Network scenes** [DONE]. `NetworkSceneLoader` (root entry point) hooks every NGO start: `VerifySceneBeforeLoading` lets NGO load and synchronize **only Gameplay**, so a client that joins while the host sits in the menu keeps its own menu (the lobby screen) instead of reloading the host's scene. It publishes `NetworkSceneLoadStartedEvent` when the local peer starts loading a network scene, which moves clients from `LobbyState` to `GameplayState`.
 - Authentication is anonymous, with a new profile per launch so Multiplayer Play Mode players don't collide [TEMPORARY until Steam auth].
+- **Dev quick start** [DONE] (`IDevSession`, Networking/Development), **off by default** (the menu with join by code is the normal path). In the editor, with `NetworkingConfig.devQuickStart` on, `BootstrapState` skips the menu:
+  - every Multiplayer Play Mode player calls `CreateOrJoinAsync("<devSessionPrefix><device id>")` over Relay, so all instances on one machine meet in one session,
+  - non-main editors wait `devJoinDelaySeconds` first, so the main editor usually becomes the host,
+  - then `GameplayState` loads the Gameplay scene.
+  - Risk: if Play Mode stops before the session is left, the stale session can block the next run until the services time it out. Changing `devSessionPrefix` works around it.
 - The `NetworkManager` is a prefab in `Prefabs/Network`. The root scope creates it (DontDestroyOnLoad) the first time something resolves it. **`PlayerPrefab` is empty on purpose**: the gameplay server spawns players once the Gameplay scene is ready.
 
 ### Authority
@@ -253,14 +271,22 @@ GameEntryPoint (root, IAsyncStartable)
 - Subscribe in `OnNetworkSpawn` and unsubscribe in `OnNetworkDespawn`. No networked logic in `Awake`.
 
 ### Spawning and DI [DONE]
-- While `GameplayLifetimeScope` is alive, `RegisterNetworkPrefabInjection()` gives every prefab in the NetworkManager's prefab lists an `InjectingNetworkPrefabHandler`.
+- While `GameplayLifetimeScope` is alive, `RegisterNetworkPrefabInjection()` gives every prefab in the NetworkManager's prefab lists an `InjectingNetworkPrefabHandler`. The handlers are registered in `IInitializable.Initialize`, which runs while the scope is being built (the scene's `Awake`), so they exist before NGO spawns anything into the scene.
+- **Spawn for a client only after it has loaded the scene.** Until then its scope (and its handlers) don't exist, and its copy would be created without injection. Server code spawns from `NetworkSceneManager.OnLoadComplete` (the client finished loading the scene, the host included) and `OnSynchronizeComplete` (a late joiner finished syncing).
 - **On the server:** `networkManager.SpawnManager.InstantiateAndSpawn(prefab, ...)` → handler → `resolver.Instantiate` (injected, in the Gameplay scene) → spawned.
 - **On clients:** NGO calls the same handler, so their copies are injected too.
 - New network prefabs go into `Assets/DefaultNetworkPrefabs.asset`.
 - In-scene placed `NetworkObject`s that need injection go into the scope's `autoInjectGameObjects`.
 
+### Player [DONE: greybox]
+- `Prefabs/Player/Player.prefab`: `NetworkObject`, `NetworkTransform` (Owner authority, position + yaw), `CharacterController`, `PlayerController`, a capsule body, and `CameraPivot/PlayerCamera` (a `CinemachineCamera`, active only for the owner). The Gameplay scene's Main Camera has the `CinemachineBrain`.
+- `PlayerSpawner` (Gameplay/Player, server only) spawns one player object per client at the `PlayerSpawnPoints` of the generated floor's start module (`IFloor.SpawnPoints`) on the events above.
+- `PlayerController` runs only for the owner: `PlayerLook` (yaw on the body, pitch on the pivot) and `PlayerMotor` (walk, sprint, jump, gravity). Tuning is in `PlayerConfig` (`Data/Configs`). The owner's body only casts a shadow.
+- Falling below `PlayerConfig.fallRespawnHeight` teleports the player back to its spawn point [TEMPORARY until death and the Echo are designed, GDD §4.4–4.5].
+- The level is a generated floor (§12). `Gameplay.unity` holds the scope, the camera, `FloorState` and `Lighting` (sun and sky volume copied from the HDRP template) [TEMPORARY until the void look pass].
+
 ### Testing
-The user tests with Multiplayer Play Mode (`Window → Multiplayer → Multiplayer Play Mode`). Claude never enters Play Mode.
+The user tests with Multiplayer Play Mode (`Window → Multiplayer → Multiplayer Play Mode`). Claude enters Play Mode only when the user allows it for the current task (CLAUDE.md).
 
 ---
 
@@ -293,8 +319,20 @@ The goal is one physical world for everyone, with different perception per playe
 
 ---
 
-## 12. World generation [PLANNED]
+## 12. World generation [DONE: linear template]
 
+- **Grid.** A floor is a 3D grid of cubic cells, 4 m [PROPOSED] (`FloorConfig.cellSize`). Cell `(x, level, row)`: +X east, +Z north, a level is one cell up. A module occupies one or more cells, and its pivot is the bottom center of its anchor cell. Placement = anchor cell + quarter turns around Y. Passages exist only through cell faces, 2 m wide in the middle of the face. No overlaps by construction. Void reshaping = swapping the module in a cell [PLANNED].
+- **Module kit** (11 models, `Art/Environment/Modules`, built by `ArtSource/Blender/Scripts/Environment/build_floor_modules.py`): Start 3×2 (spawns), Platform, Bridge, BridgeGap, BridgeBroken, Stair (one level up over two rows, ~27°), Doorway, Corridor (enclosed), Junction 3×1, ExitRoom 3×2 (exit door), UTurn 2×1. `ModuleTurn` reuses the Platform prefab with other passages. Gaps, broken bridges and doorways carry `Illusion_N` markers for step 2.
+- **Module definitions** (`Data/World/Modules`): a `WorldModuleDefinition` per module with its prefab, role, weight, occupied cells and passages (cell + direction). `WorldModuleCatalog` lists them. Systems inject the catalog.
+- **Generator** (`Gameplay/World/Generation`, pure C#, `internal`): `FloorGenerator.Generate(seed)` → `FloorLayout` (placed modules, start and exit). It retries with derived seeds until `FloorLayoutValidator` passes: matching joints, start connected to exit, and the loop closed. `DeterministicRandom` is xorshift with a mixed seed, so small seeds aren't biased.
+- **Linear template** (`LinearFloorTemplate`): two lanes leave the start (east lane up a stair, west lane down a stair) → bridge rows (bridges, gaps, platforms, stairs, at most one doorway per lane) →
+  - **TwoPaths:** both lanes are aligned in level and row and merge at the junction,
+  - **Loop:** the west lane turns back (UTurn), climbs and re-enters the start from the west,
+  
+  → junction → two enclosed corridor lanes (separation: heard, not seen) → exit room. Row counts, level bounds and chances are in `FloorConfig`.
+- **Build and network.** `FloorState` (in-scene `NetworkObject` in `Gameplay.unity`, auto-injected) picks the seed on the server (`FloorConfig.seed`, 0 = random) into a `NetworkVariable<int>`. Every peer calls `IFloor.Build(seed)` in `OnNetworkSpawn` and instantiates the modules locally under `FloorState`. The server builds before `OnLoadComplete`, so `PlayerSpawner` finds the start module's spawn points.
+- **Tests:** `FloorGeneratorTests` (200 seeds: determinism, connectivity, joints, overlaps, level bounds, both start variants, loop closure) and `DeterministicRandomTests`.
+- **Preview without Play Mode:** `Tools → No Way Out → Preview Generated Floor` builds a floor (FloorConfig seed, or random) into a new additive scene named after the seed. Close it without saving.
 - The server picks a seed. Every client builds the same **static** layout locally from modules (`Prefabs/World`, `Data/World`), so the geometry is never sent over the network.
 - Interactables inside modules (doors, levers, items) are `NetworkObject`s **spawned by the server** at module sockets.
 - **Void reshaping** is a server event ("module X → variant Y"). It's applied only where no player is looking, so players need to sync their look direction.
@@ -323,11 +361,12 @@ The goal is one physical world for everyone, with different perception per playe
 
 ---
 
-## 15. UI (UI Toolkit) [PLANNED, the first screen builds the foundation]
+## 15. UI (UI Toolkit) [DONE: foundation and main menu]
 
 - **Assets.**
-  - `UI/Panel/GamePanelSettings.asset`: one PanelSettings for the whole game, Scale With Screen Size at 1920×1080.
-  - A theme `.tss` that pulls in the default runtime theme plus our styles.
+  - `UI/Panel/GamePanelSettings.asset`: one PanelSettings for the whole game, Scale With Screen Size at 1920×1080, match 0.5.
+  - `UI/Panel/GameTheme.tss` pulls in the default runtime theme plus `Variables.uss` and `Common.uss`.
+  - Fonts (OFL, Cyrillic): `UI/Fonts/Oswald` (titles) and `UI/Fonts/IBMPlexMono` (text, codes). Each has a dynamic SDF `FontAsset` next to the `.ttf`, used through `-unity-font-definition`.
   - `UI/Styles/Variables.uss` holds the design tokens: colors, font sizes, spacing, durations.
   - `UI/Styles/Common.uss` holds shared classes (`.screen`, `.screen--hidden`, buttons).
   - Each screen gets `UI/Screens/<Screen>/<Screen>.uxml` + `.uss`.
@@ -335,7 +374,13 @@ The goal is one physical world for everyone, with different perception per playe
   - `Prefabs/UI/<Screen>.prefab` holds a `UIDocument` (shared PanelSettings) and a `<Screen>View` (`MonoBehaviour`, NoWayOut.UI).
   - The View queries elements, raises C# events and exposes `Set...` methods. It has no logic and no services.
   - A `<Screen>Presenter` (plain C#, internal, registered in the scene scope by `UIInstaller`) talks to services and the event bus and drives the View. The View gets its Presenter through `[Inject] Construct` and attaches and detaches in `OnEnable`/`OnDisable`.
-- **Showing screens.** `IScreenService` (NoWayOut.UI) shows and hides screens by View type. It instantiates them through the resolver, from the prefab list in `UIScreensConfig`. App states call it (App → UI). UI never calls App (§7).
+- **Showing screens.** `IScreenService` (NoWayOut.UI, Scoped) shows and hides screens by View type. It instantiates them through the scene scope's resolver, from the prefab list in `UIScreensConfig` (`Data/Configs`), and toggles `.screen--hidden`. Scene presenters call it. UI never calls App (§7).
+- **Main menu: "TV signal"** (concept board `05_MainMenu_Variants.jpg`, variant 4).
+  - `Prefabs/UI/MainMenuRoom.prefab` in `MainMenu.unity`: a dark HDRP room (`VP_MainMenu`), the menu camera, an EventSystem, and 5 `MainMenuTv` (Poly Haven Television 01): Create, Join, Settings, Credits, Quit.
+  - Each `MainMenuTv` renders its screen through a `CustomRenderTexture` with the `NoWayOut/CRT Screen` shader (`Art/Shaders/CRTScreen.shader`: scanlines, noise, curvature, chromatic shift, line jitter, rolling tear) from a still in `Art/Textures/MainMenu`. Distortion is tweened with PrimeTween: idle → hover → select.
+  - `MainMenuView` puts one transparent UI Toolkit button over each TV (projected bounds), with the localized label below it. Input, hover and keyboard focus are plain UI Toolkit events.
+  - `MainMenuPresenter`: select → the camera pushes into the TV (full-screen transition) → Create hosts a Relay session, Join shows `JoinCodeView`, Settings/Credits show `ComingSoonView`, Quit publishes `QuitRequestedEvent`. A started session shows `LobbyView` (code, copy, players N/max, Start for the host, Leave).
+  - Tuning (distortion levels, durations, eases, label height) is in `MainMenuConfig`.
 - **Animation.** Showing and hiding uses USS transitions (`.screen--hidden` toggles opacity and translate). PrimeTween is only for what USS can't do.
 - **Text.** Every string comes from Localization (§16). Fonts must cover Cyrillic.
 - **The HUD must not leak the truth** (GDD §11): no distance readouts, no true "who is speaking" indicator, no nameplates.
@@ -370,10 +415,13 @@ The goal is one physical world for everyone, with different perception per playe
 
 ---
 
-## 18. Input [PLANNED]
+## 18. Input [DONE]
 
-- Actions live in `_Project/Settings/Input/InputSystem_Actions.inputactions` (project-wide actions, still the template's maps).
-- An `IInputService` in Infrastructure will wrap the generated C# class with modes (Gameplay, UI, Disabled). No `PlayerInput` component and no UnityEvents.
+- Actions live in `_Project/Settings/Input/InputSystem_Actions.inputactions` (project-wide actions).
+  - `Player` map: `Move` (WASD/arrows), `Look` (pointer delta), `Jump` (Space), `Sprint` (Left Shift), `Interact` (E). Keyboard and mouse only, because the gamepad is still open (GDD §1).
+  - `UI` map: the template's map, kept for UI Toolkit.
+- The importer generates `Runtime/Infrastructure/Input/GameInputActions.cs` (namespace `NoWayOut.Infrastructure.Input`). Don't edit it, change the asset instead.
+- `IInputService` (Infrastructure, root scope) wraps it: `SetMode(Gameplay | UI | Disabled)` enables the matching map and locks or frees the cursor, and gameplay code polls `Move`, `Look`, `IsSprintHeld`, `WasJumpPressedThisFrame`. No `PlayerInput` component and no UnityEvents.
 
 ---
 

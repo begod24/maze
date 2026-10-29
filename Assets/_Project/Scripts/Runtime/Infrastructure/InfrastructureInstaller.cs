@@ -1,6 +1,7 @@
 using NoWayOut.Core.Events;
 using NoWayOut.Core.States;
 using NoWayOut.Infrastructure.AssetManagement;
+using NoWayOut.Infrastructure.Input;
 using NoWayOut.Infrastructure.SceneManagement;
 using NoWayOut.Infrastructure.States;
 using VContainer;
@@ -16,6 +17,7 @@ namespace NoWayOut.Infrastructure
             RegisterStateFactory(builder);
             RegisterSceneLoader(builder);
             RegisterAssetProvider(builder);
+            RegisterInputService(builder);
         }
 
 
@@ -40,6 +42,12 @@ namespace NoWayOut.Infrastructure
         private void RegisterAssetProvider(IContainerBuilder builder)
         {
             builder.Register<IAssetProvider, AddressablesAssetProvider>(Lifetime.Scoped);
+        }
+
+
+        private void RegisterInputService(IContainerBuilder builder)
+        {
+            builder.Register<IInputService, InputService>(Lifetime.Singleton);
         }
     }
 }

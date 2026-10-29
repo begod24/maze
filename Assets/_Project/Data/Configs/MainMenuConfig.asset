@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c355555fb0afed46a20d0f6c725a43b, type: 3}
+  m_Name: MainMenuConfig
+  m_EditorClassIdentifier: NoWayOut.UI::NoWayOut.UI.Screens.MainMenu.MainMenuConfig
+  screenResolution: {x: 512, y: 384}
+  idleDistortion: 0.05
+  hoverDistortion: 0.45
+  selectDistortion: 1
+  hoverDuration: 0.25
+  hoverEase: 6
+  focusDuration: 1.2
+  focusEase: 10
+  returnDuration: 0.8
+  returnEase: 10
+  lightBoost: 1.5
+  labelHeight: 56
+  errorDisplaySeconds: 2.5

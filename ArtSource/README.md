@@ -5,8 +5,8 @@ Source art that Unity never imports. Only exported results go into `Assets/_Proj
 ```
 ArtSource/
   Blender/
-    Scripts/          build scripts for the environment (build_<name>.py) and shared helpers (nwo_common.py)
-    Environment/      .blend files that build scripts produce. Don't edit them by hand
+    Scripts/          nwo_common.py (shared helpers), Environment/build_floor_modules.py (the floor module kit), Props/ conversion scripts for third-party models
+    Environment/      one .blend per module, produced by the build scripts. Don't edit them by hand
     Characters/       hand-made characters and entities (.blend)
     Props/            hand-made props (.blend)
     Assets_NWO.blend  the original asset file
@@ -28,10 +28,12 @@ ArtSource/
 
 ## Rules
 
-- **Blender:** `/Applications/Blender.app` (5.2.2 LTS). Background runs use `/Applications/Blender.app/Contents/MacOS/Blender -b --python <script>`.
-- **Export target:** `Assets/_Project/Art/<Domain>/<AssetName>/<AssetName>.fbx` (Domain: Characters, Entities, Environment, Props). Textures go in a `Textures/` folder next to it.
+- **Blender:** `C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe` (5.2.3 LTS, Steam). Background runs from Git Bash use `"/c/Program Files (x86)/Steam/steamapps/common/Blender/blender.exe" -b --python <script>`.
+- **Export target:** `Assets/_Project/Art/<Domain>/<AssetName>/<AssetName>.fbx` (Domain: Characters, Entities, Environment, Props). Textures go in a `Textures/` folder next to it. **Modular kits** (level modules) share one folder: `Assets/_Project/Art/Environment/Modules/<Module>.fbx`.
+- **Colliders and markers:** objects named `COL_*` become BoxColliders in Unity. Empties `Spawn_N`, `Illusion_N`, `Door_*` mark points.
 - **Units:** 1 Blender unit = 1 m. Environment pieces snap to a **1 m grid**. The pivot sits on the bottom face at the connection point. Level module sockets are empties named `Socket_<Type>`.
-- **Axes:** export with **no** Apply Transform. Unity's `bakeAxisConversion` (set by the import postprocessor) brings models in with rotation 0 and scale 1.
+- **Axes:** apply rotation and scale in Blender, then export in Blender's axes (**Y forward, Z up**) with **no** Apply Transform. Unity's `bakeAxisConversion` (set by the import postprocessor) brings models in with rotation 0 and scale 1.
+- **Third-party models** are converted by a script in `Blender/Scripts/Props/` (e.g. `import_television01.py`), which writes `Blender/Props/<Name>.blend` and the FBX in `Assets`.
 - **Names:** PascalCase objects, meshes and bones (`Root`, `Spine`, `Head`). Actions are `<Asset>_<Action>`. Material slots use the Unity material name (`M_ConcreteWet`), so imports remap cleanly.
 - **Never edit an exported FBX in Unity.** Fix the source and re-export.
 - **Third-party:** keep the originals untouched in `ThirdParty/<name>/`, with a `SOURCE.txt` (link, license, date). Work on a copy in `Blender/`.

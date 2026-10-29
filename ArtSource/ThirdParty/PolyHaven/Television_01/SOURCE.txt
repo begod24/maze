@@ -1,0 +1,7 @@
+Television 01
+Source: https://polyhaven.com/a/Television_01
+Author: Gabriel Radić (Poly Haven)
+License: CC0 1.0 (public domain)
+Downloaded: 2026-10-28
+Files: Television_01_2k.fbx, Television_01_diff_2k.jpg, Television_01_nor_gl_2k.jpg, Television_01_arm_2k.jpg (2k set)
+Used in Unity: Assets/_Project/Art/Props/Television01/ (main menu TVs)

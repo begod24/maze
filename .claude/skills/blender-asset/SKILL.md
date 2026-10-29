@@ -5,7 +5,7 @@ description: Make a 3D asset for No Way Out and bring it into Unity — environm
 
 # Blender → Unity asset
 
-Read `ArtSource/README.md`. Blender is `/Applications/Blender.app` (5.2.2 LTS). For live work use Blender MCP, and check `bpy.data.filepath` first.
+Read `ArtSource/README.md`. Blender is `C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe` (5.2.3 LTS, Steam). For live work use Blender MCP, and check `bpy.data.filepath` first.
 
 ## 0. Agree on it first
 
@@ -21,25 +21,22 @@ New entities and characters also get 2–3 short concept options with a ★ firs
 
 ## 1. Environment pieces and level modules: build scripts
 
-- **Script:** `ArtSource/Blender/Scripts/Environment/build_<name>.py`. Shared helpers live in `ArtSource/Blender/Scripts/nwo_common.py`. Create them with the first script, and keep them minimal:
-  - `reset_scene(seed)`
-  - `box`, `stairs`, `cut`
-  - `assign_material(obj, "M_Name")`
-  - `socket(name, location, rotation)`
-  - `join`
-  - `save_and_export(blend_path, fbx_path)`
+- **Script:** one script per kit, e.g. `ArtSource/Blender/Scripts/Environment/build_floor_modules.py` (the floor module kit: a `build_<module>()` function per module and a `MODULES` list). Shared helpers live in `ArtSource/Blender/Scripts/nwo_common.py` [exists]: `reset_scene(seed)`, `new_collection`, `box` (visual), `collider` (`COL_` box, optional X rotation), `solid` (visual + collider), `empty`, `join_visuals`, `export_collection`, `save_blend`. Extend it instead of copying code.
 - **Script structure:**
   - `sys.path.insert` to `Scripts/`, then `import nwo_common as nc`,
   - every tunable number as an UPPER_SNAKE constant at the top,
-  - `main()` builds → joins → adds sockets → saves and exports,
+  - `main()`: for each module, reset with its own seed → build → join visuals → save its `.blend` → export,
   - a fixed seed, so rerunning gives the same model.
-- **Edit the script, never the `.blend`.** The output goes to `ArtSource/Blender/Environment/<Name>.blend` plus `Assets/_Project/Art/Environment/<Name>/<Name>.fbx`.
-- **Grid:** 1 unit = 1 m, pieces snap to the 1 m grid, and the pivot is on the bottom face at the connection point.
-- **Sockets:** level modules mark their connection points with empties named `Socket_<Type>` (`Socket_Door`, `Socket_Stair`). They import as child transforms that the generator reads.
+- **Edit the script, never the `.blend`.** Outputs: `ArtSource/Blender/Environment/<Module>.blend` (one file per module, so object names stay clean) and **one shared folder** `Assets/_Project/Art/Environment/Modules/<Module>.fbx`. Modular kits never get a folder per piece. Prefabs go to `Prefabs/World/Modules/`, definitions to `Data/World/Modules/`.
+- **Grid:** 1 unit = 1 m. Level modules follow the floor grid (TechnicalOverview §12): 4 m cells, the pivot at the bottom center of the anchor cell, passages 2 m wide in the middle of a cell face, floor top at z = 0. Blender +Y is north (Unity +Z), +X is east.
+- **Colliders:** an object named `COL_<Name>` becomes a `BoxCollider` on import (its mesh bounds), and its renderer is removed (`ArtImportPostprocessor`). Walkable slabs and walls use `nc.solid`. Stairs use an invisible tilted `COL_Ramp` and visual-only steps.
+- **Markers:** empties `Spawn_N` (start spawns, collected into `PlayerSpawnPoints` on the prefab), `Illusion_N` (illusion slots), `Door_<Name>` (interactable sockets). They import as child transforms.
+- **A new module** needs: its builder in the kit script, a run, a prefab in `Prefabs/World/Modules`, a `WorldModuleDefinition` (role, weight, cells, passages) and an entry in `WorldModuleCatalog`. Check it with `Tools → No Way Out → Preview Generated Floor` and the `FloorGeneratorTests`.
 - **Run it:**
   ```bash
-  /Applications/Blender.app/Contents/MacOS/Blender -b --python "ArtSource/Blender/Scripts/Environment/build_<name>.py"
+  "/c/Program Files (x86)/Steam/steamapps/common/Blender/blender.exe" -b --factory-startup --python "ArtSource/Blender/Scripts/Environment/build_floor_modules.py"
   ```
+  This is Git Bash syntax. Paths inside Python scripts use forward slashes or `os.path.join`.
   Delete the `__pycache__` folder that gets created next to the scripts.
 - **No UVs needed** for triplanar materials. If the piece will use baked lighting, Unity generates lightmap UVs (importer setting).
 
@@ -73,8 +70,8 @@ bpy.ops.export_scene.fbx(
     use_selection=True,
     object_types={'MESH', 'ARMATURE', 'EMPTY'},
     apply_scale_options='FBX_SCALE_ALL',
-    axis_forward='-Z',
-    axis_up='Y',
+    axis_forward='Y',
+    axis_up='Z',
     bake_space_transform=False,
     add_leaf_bones=False,
     mesh_smooth_type='FACE',
@@ -82,17 +79,22 @@ bpy.ops.export_scene.fbx(
     bake_anim=has_animation,
 )
 ```
-- No Apply Transform (`bake_space_transform=False`). Unity's **Bake Axis Conversion** handles the axes.
+- Export in Blender's own axes (**Y forward, Z up**) with no Apply Transform (`bake_space_transform=False`), and let Unity's **Bake Axis Conversion** convert them. Verified on Television01: `-Z forward / Y up` leaves a 90° X rotation on the root node in Unity.
+- Apply rotation and scale in Blender before exporting (`transform_apply`), so the root comes in with rotation 0 and scale 1.
 - Material slot names are Unity material names (`M_ConcreteWet`).
+- **Third-party models** (Poly Haven, store packs) go through a small conversion script in `ArtSource/Blender/Scripts/Props/` (see `import_television01.py`): import the original from `ThirdParty/`, apply transforms, move the pivot to the bottom center, rename the object and its material slot to `M_<Name>`, save `Blender/Props/<Name>.blend` and export the FBX.
 
 ## 5. Unity import
 
-- `NoWayOut.Editor/Import/ArtImportPostprocessor.cs` (`AssetPostprocessor`) enforces the settings for everything under `Assets/_Project/Art/`. Create it on the first import, then only extend it. It sets:
+- `NoWayOut.Editor/Import/ArtImportPostprocessor.cs` (`AssetPostprocessor`) enforces the settings for everything under `Assets/_Project/Art/` [exists]. Only extend it. It sets:
   - `bakeAxisConversion = true`, `globalScale = 1`,
-  - remaps materials **by name** to existing `M_` materials (`SearchAndRemapMaterials`),
+  - remaps material slots named `M_<Name>` to the existing `M_<Name>.mat` under `Art/` (`OnAssignMaterialModel`). Create the material before the first import,
   - Environment: `generateSecondaryUV = true`, no animation import,
-  - Characters: `animationType = Human` (avatar from the model), and Mixamo animation FBXs copy the avatar,
-  - Entities: `animationType = Generic`.
+  - Characters: `animationType = Human` (avatar from the model). Copying the avatar to Mixamo animation FBXs is not written yet: add it with the first Mixamo import,
+  - Entities: `animationType = Generic`,
+  - Props and everything else: no animation,
+  - textures: `_Normal` → normal map, `_Mask` / `_ARM` → not sRGB, max size 2048 on first import.
+- Files copied in before the postprocessor compiled keep the old settings: reimport them (`ImportAssetOptions.ForceUpdate`).
 - After import, the model root must have rotation (0, 0, 0) and scale 1. If it doesn't, fix the importer or the export settings, never the prefab.
 
 ## 6. HDRP materials
@@ -100,7 +102,7 @@ bpy.ops.export_scene.fbx(
 - **Environment:**
   - Use tiling PBR sets (Poly Haven / ambientCG, CC0). Downloading files needs the user's OK: ask first, or let the user download.
   - Textures go in `Art/Textures/<Set>/T_<Set>_BaseColor`, `_Normal`, `_Mask`.
-  - **HDRP Mask map** channels: R metallic, G AO, B detail mask, A smoothness = 1 − roughness. Pack it with `Tools → No Way Out → Pack HDRP Mask Map` (an editor tool in `NoWayOut.Editor`, created on first use).
+  - **HDRP Mask map** channels: R metallic, G AO, B detail mask, A smoothness = 1 − roughness. Select a `T_<Name>_ARM` texture (glTF/Poly Haven packing: R AO, G roughness, B metallic) and run `Tools → No Way Out → Pack HDRP Mask Map (from ARM)` [exists]. It writes `T_<Name>_Mask.png` next to it. Then delete the ARM copy from `Assets` (the original stays in `ArtSource/ThirdParty`). Sets with separate maps need the tool extended first.
   - Materials use the triplanar Shader Graph `Art/Shaders/SG_TriplanarLit` (HDRP Lit target, world-space, tiling and blend sharpness, created on first use). They live in `Art/Materials/Environment/M_<Set>.mat`.
 - **Characters and props:**
   - Substance Painter project in `ArtSource/Substance/<Name>.spp`.

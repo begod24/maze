@@ -7,7 +7,7 @@ using VContainer.Unity;
 
 namespace NoWayOut.Networking.Spawning
 {
-    internal sealed class NetworkPrefabInjection : IStartable, IDisposable
+    internal sealed class NetworkPrefabInjection : IInitializable, IDisposable
     {
         private readonly NetworkManager networkManager;
         private readonly IObjectResolver resolver;
@@ -21,7 +21,7 @@ namespace NoWayOut.Networking.Spawning
         }
 
 
-        public void Start()
+        public void Initialize()
         {
             foreach (NetworkPrefabsList prefabsList in networkManager.NetworkConfig.Prefabs.NetworkPrefabsLists)
             {

@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="Lobby.uss" />
+    <ui:VisualElement name="lobby" class="screen screen--hidden screen--centered">
+        <ui:VisualElement class="panel">
+            <ui:Label name="title-label" class="text text--title" />
+            <ui:Label name="code-caption" class="text text--dim" />
+            <ui:VisualElement class="row">
+                <ui:Label name="code-label" class="text lobby__code" />
+                <ui:Button name="copy-button" class="menu-button" />
+            </ui:VisualElement>
+            <ui:Label name="players-label" class="text" />
+            <ui:Label name="waiting-label" class="text text--dim" />
+            <ui:VisualElement class="row">
+                <ui:Button name="leave-button" class="menu-button" />
+                <ui:Button name="start-button" class="menu-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

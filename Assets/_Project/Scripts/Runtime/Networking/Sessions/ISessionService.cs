@@ -7,11 +7,19 @@ namespace NoWayOut.Networking.Sessions
     {
         bool IsInSession { get; }
 
+        bool IsHost { get; }
+
         string JoinCode { get; }
+
+        int PlayerCount { get; }
+
+        int MaxPlayers { get; }
 
         UniTask HostAsync(CancellationToken cancellationToken = default);
 
         UniTask JoinAsync(string joinCode, CancellationToken cancellationToken = default);
+
+        UniTask CreateOrJoinAsync(string sessionId, CancellationToken cancellationToken = default);
 
         UniTask LeaveAsync();
     }

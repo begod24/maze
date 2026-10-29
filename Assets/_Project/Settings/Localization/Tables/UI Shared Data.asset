@@ -14,7 +14,95 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
   m_TableCollectionName: UI
   m_TableCollectionNameGuidString: 10ee4b9fcd7b7422ea3143deedd62e1c
-  m_Entries: []
+  m_Entries:
+  - m_Id: 103119139000320
+    m_Key: game.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119185137664
+    m_Key: main_menu.create
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331968
+    m_Key: main_menu.join
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331969
+    m_Key: main_menu.settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331970
+    m_Key: main_menu.credits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331971
+    m_Key: main_menu.quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331972
+    m_Key: main_menu.creating
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331973
+    m_Key: main_menu.create_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331974
+    m_Key: join.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331975
+    m_Key: join.submit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331976
+    m_Key: join.connecting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331977
+    m_Key: join.empty_code
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331978
+    m_Key: join.failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331979
+    m_Key: common.back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331980
+    m_Key: lobby.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331981
+    m_Key: lobby.code
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331982
+    m_Key: lobby.copy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331983
+    m_Key: lobby.players
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331984
+    m_Key: lobby.waiting_host
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331985
+    m_Key: lobby.start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331986
+    m_Key: lobby.leave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103119189331987
+    m_Key: coming_soon.message
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

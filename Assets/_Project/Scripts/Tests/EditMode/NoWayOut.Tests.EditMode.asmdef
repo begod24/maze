@@ -3,6 +3,7 @@
     "rootNamespace": "NoWayOut.Tests.EditMode",
     "references": [
         "NoWayOut.Core",
+        "NoWayOut.Gameplay",
         "UniTask",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"

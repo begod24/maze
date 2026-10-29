@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c54167b51746c4738b77b8eec27b44f3, type: 3}
+  m_Name: WeatherConfig
+  m_EditorClassIdentifier: NoWayOut.Gameplay::NoWayOut.Gameplay.World.Weather.WeatherConfig
+  presets:
+  - name: Calm
+    rain: 0
+    storm: 0
+    ash: 0
+    wind: 0.1
+    fog: 0
+    weight: 3
+    durationMin: 60
+    durationMax: 120
+  - name: Drizzle
+    rain: 0.3
+    storm: 0
+    ash: 0
+    wind: 0.2
+    fog: 0.15
+    weight: 2
+    durationMin: 45
+    durationMax: 90
+  - name: Downpour
+    rain: 1
+    storm: 0.15
+    ash: 0
+    wind: 0.5
+    fog: 0.6
+    weight: 1
+    durationMin: 40
+    durationMax: 80
+  - name: Thunderstorm
+    rain: 0.8
+    storm: 1
+    ash: 0
+    wind: 0.7
+    fog: 0.5
+    weight: 1
+    durationMin: 40
+    durationMax: 70
+  - name: Ash Fall
+    rain: 0
+    storm: 0
+    ash: 0.9
+    wind: 0.15
+    fog: 0.35
+    weight: 1.5
+    durationMin: 60
+    durationMax: 100
+  - name: Gale
+    rain: 0.15
+    storm: 0
+    ash: 0.3
+    wind: 1
+    fog: 0.1
+    weight: 1
+    durationMin: 30
+    durationMax: 60
+  startPresetIndex: 0
+  debugPresetIndex: -1
+  transitionSeconds: 25
+  wetRiseSeconds: 40
+  wetDrySeconds: 120
+  puddleDryOpacity: 0.35
+  puddleDrySizeScale: 0.7
+  puddleUpdateInterval: 0.5
+  puddleRippleRate: 6
+  puddleRippleRadius: 18
+  puddleRippleCoreFraction: 0.3
+  puddleRipplesPerFrameMax: 30
+  puddleRippleSizeMin: 0.15
+  puddleRippleSizeMax: 0.35
+  rainRateMax: 2600
+  rainWindInfluence: 0.6
+  ashRateMax: 140
+  ashWindInfluence: 1
+  ashDepthBoostPerMeter: 0.04
+  particleWindForce: 0.15
+  windSpeedMax: 6
+  windYawDegrees: 35
+  windYawWander: 60
+  windWanderFrequency: 0.01
+  gustFrequency: 0.12
+  gustThreshold: 0.6
+  rainFogWeight: 0.5
+  ashFogWeight: 0.35
+  gustClearWeight: 0.8
+  fogWindInfluence: 0.5
+  lightningIntervalMin: 4
+  lightningIntervalMax: 25
+  lightningIntensityLux: 18
+  lightningDuration: 0.45
+  lightningPulsesMax: 3
+  lightningPitchMin: 45
+  lightningPitchMax: 75

@@ -6,6 +6,8 @@
 
 Unity **6000.3.24f1**, **HDRP**, PC (Steam). Solo developer. **Talk to the user in Russian.**
 
+**Everything visual is realistic** (the user's standing rule, GDD §10). HDRP is chosen for realism, so use physically based solutions by default: PBR materials, physical light units and exposure, volumetric fog and lighting, SSR and SSGI, decals. Never fall back to a stylized, flat or placeholder look unless the user asks for it.
+
 - Design: `Docs/GDD.md` (in Russian). **Read it before any gameplay or design work.** Tags: **[DECIDED]**, **[PROPOSED]**, **[OPEN]**.
 - Architecture: `Docs/TechnicalOverview.md`. **Read it before adding a system, a module or a networked feature.**
 - Decision log: `Docs/Decisions.md`. Add a row whenever a technical or design decision is made.
@@ -23,7 +25,10 @@ Unity **6000.3.24f1**, **HDRP**, PC (Steam). Solo developer. **Talk to the user 
 - **Before any refresh or script edit,** check that the editor isn't in Play Mode, because a domain reload would kick the user out of their session.
 - **Design problems need options first.** Give a short diagnosis and 2–4 options with a ★ recommendation (AskUserQuestion), and write code only after the user picks one. Many issues at once go into one numbered list of questions. Clear bug fixes and direct commands need no discussion.
 - **Stay in scope.** Don't add refactors, renames or fixes the task didn't ask for.
-- **Never save, close or discard the user's open scene.** Check `isDirty`. Create new scenes with `NewSceneMode.Additive`, and switch the active scene back afterwards.
+- **Scenes: you may open, switch, edit and save them.** This is the user's standing permission. Open whichever scene the task needs, switch between scenes, change them and save the ones you changed.
+  - **Say what you do in scenes:** which scene you opened or switched to, what you changed in it, and what you saved.
+  - **Never discard the user's changes.** When a task starts, note which open scenes are already `isDirty`: those changes are the user's. Before switching away from such a scene or closing it, ask first. Scenes dirty from your own edits get saved before you switch.
+  - Not in Play Mode (see above).
 - **At the end of every task, report in four parts, then stop and wait:**
   1. **Changed files.** Every file, including `.meta`, `.asset`, `.prefab`, `.unity` and `.asmdef`, with a one-line reason each.
   2. **How to check it in the game.** What to open or run, and what to look at. For networked features, say how to check with 2 players in Multiplayer Play Mode.
@@ -92,6 +97,7 @@ Docs/References/GDD_v2_Concept.pdf  the second concept document (the source of t
   - Editor.log: `%LOCALAPPDATA%\Unity\Editor\Editor.log`.
   - Blender: `C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe` (5.2.3 LTS).
   - In C# strings, write paths with forward slashes.
+- **A second machine on macOS works on the same repo in parallel.** Its paths and rules are in `CLAUDE.local.md` on that machine (gitignored). There they override the Windows paths in this file and in the skills.
 - **Unity MCP (`unity-mcp`).** Use it to refresh, read the console, run tests and create assets, prefabs and scenes (`Unity_RunCommand`). Its quirks are in the `unity-compile-check` skill.
 - **`VContainerSettings.DisableScriptModifier` must stay on.** Otherwise VContainer overwrites any new `*LifetimeScope.cs` written from outside the editor with its empty template.
 - **`.meta` files.** Unity creates `.meta` files for `.cs` files written from the shell on refresh. Never hand-write a `.meta`.

@@ -15,7 +15,8 @@ namespace NoWayOut.Gameplay.World.Generation
             this.config = config;
             ModulePicker picker = new ModulePicker(catalog);
             ModulePlacer placer = new ModulePlacer(config);
-            linearTemplate = new LinearFloorTemplate(config, picker, placer);
+            LaneBuilder lanes = new LaneBuilder(config, picker, placer);
+            linearTemplate = new LinearFloorTemplate(config, picker, placer, lanes);
         }
 
 

@@ -1,0 +1,7 @@
+Concrete Wall 006
+Source: https://polyhaven.com/a/concrete_wall_006
+Author: Dario Barresi, Charlotte Baglioni (Poly Haven)
+License: CC0 1.0 (public domain)
+Downloaded: 2026-10-29
+Files: concrete_wall_006_diff_2k.jpg, concrete_wall_006_nor_gl_2k.jpg, concrete_wall_006_arm_2k.jpg (2k set, jpg)
+Used in Unity: Assets/_Project/Art/Textures/Environment/T_ConcreteWall_BaseColor.jpg, T_ConcreteWall_Normal.jpg, T_ConcreteWall_Mask.png (packed from arm; M_ConcreteWall, walls and posts)

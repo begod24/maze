@@ -12,6 +12,7 @@ namespace NoWayOut.Editor.Tools
         private const string MENU_PATH = "Tools/No Way Out/Preview Generated Floor";
         private const string CATALOG_PATH = "Assets/_Project/Data/World/WorldModuleCatalog.asset";
         private const string CONFIG_PATH = "Assets/_Project/Data/Configs/FloorConfig.asset";
+        private const string ATMOSPHERE_CONFIG_PATH = "Assets/_Project/Data/Configs/FloorAtmosphereConfig.asset";
         private const string ROOT_PREFIX = "FloorPreview_seed_";
         private const int RANDOM_SEED_MIN = 1;
 
@@ -35,6 +36,8 @@ namespace NoWayOut.Editor.Tools
                 instance.transform.SetPositionAndRotation(module.GetWorldPosition(config.cellSize), module.GetWorldRotation());
             }
 
+            FloorAtmosphereConfig atmosphereConfig = AssetDatabase.LoadAssetAtPath<FloorAtmosphereConfig>(ATMOSPHERE_CONFIG_PATH);
+            new FloorAtmosphere(atmosphereConfig, config, new PuddleField(), new FogField()).Build(layout, root.transform);
             Selection.activeGameObject = root;
         }
 

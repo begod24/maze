@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0aac16a59343340c781dcee554bada76, type: 3}
+  m_Name: FloorAtmosphereConfig
+  m_EditorClassIdentifier: NoWayOut.Gameplay::NoWayOut.Gameplay.World.FloorAtmosphereConfig
+  mistPrefab: {fileID: 5071777073411820797, guid: 6765a68614e0744ef8fb22937ea1ceba, type: 3}
+  driftFogPrefab: {fileID: 4306075258889799532, guid: fbf4bcece4fce4395a23a6ae1147aae8, type: 3}
+  wispFogPrefab: {fileID: 4306075258889799532, guid: 3550110845b634d1cb9b47173623e969, type: 3}
+  blockPrefab: {fileID: 8920063736412318040, guid: 76b077c6609da412bbf5a4b72a149fe1, type: 3}
+  puddlePrefab: {fileID: 1962336695740168018, guid: 79774377f0f9b4922be64fba46b70319, type: 3}
+  horizontalMargin: 24
+  mistDepth: 16
+  mistTopOffset: 2
+  mistPatchSize: 12
+  mistBreathAmplitude: 0.3
+  mistBreathPeriod: 50
+  driftFogHeadroom: 12
+  driftFogPatchSize: 20
+  driftFogBreathAmplitude: 0.45
+  driftFogBreathPeriod: 40
+  wispFogPatchSize: 7
+  wispFogBreathAmplitude: 0.3
+  wispFogBreathPeriod: 17
+  blocksPerThousandSquareMeters: 9
+  blockCountMax: 400
+  blockAttemptsPerBlock: 8
+  blockSeedOffset: 7919
+  blockShellMargin: 32
+  blockVerticalMargin: 24
+  blockClearance: 3
+  blockSizeMin: 1
+  blockSizeMax: 6
+  blockSlabChance: 0.35
+  blockSlabThickness: 0.2
+  blockTiltMax: 25
+  driftAmplitudeMin: 0.2
+  driftAmplitudeMax: 1.2
+  driftPeriodMin: 10
+  driftPeriodMax: 24
+  spinSpeedMax: 2
+  puddleSeedOffset: 104729
+  puddleChancePerCell: 0.3
+  puddleChanceOnBridge: 0.12
+  puddleAtlasCells: 4
+  puddleSizeMin: 1.2
+  puddleSizeMax: 3
+  puddleAspectMin: 0.5
+  puddleOffsetMax: 1.2
+  puddleHeight: 0.3
+  puddleDepth: 0.6

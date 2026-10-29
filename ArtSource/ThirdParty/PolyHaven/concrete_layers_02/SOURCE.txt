@@ -1,0 +1,7 @@
+Concrete Layers 02
+Source: https://polyhaven.com/a/concrete_layers_02
+Author: Rob Tuytel (Poly Haven)
+License: CC0 1.0 (public domain)
+Downloaded: 2026-10-29
+Files: concrete_layers_02_diff_2k.jpg, concrete_layers_02_nor_gl_2k.jpg, concrete_layers_02_arm_2k.jpg (2k set, jpg)
+Used in Unity: Assets/_Project/Art/Textures/Environment/T_ConcreteLayers_BaseColor.jpg, T_ConcreteLayers_Normal.jpg, T_ConcreteLayers_Mask.png (packed from arm; M_ConcreteLayers, module undersides and floating blocks)

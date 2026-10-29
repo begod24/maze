@@ -15,15 +15,26 @@ MonoBehaviour:
   cellSize: 4
   seed: 0
   loopStartChance: 0.5
-  bridgeRowsMin: 8
-  bridgeRowsMax: 11
+  upperLaneStepsMin: 140
+  upperLaneStepsMax: 160
+  lowerLaneStepsMin: 90
+  lowerLaneStepsMax: 110
+  laneHalfWidth: 8
   loopRowsMin: 2
   loopRowsMax: 4
   separationRowsMin: 4
   separationRowsMax: 6
-  minLevel: -3
-  maxLevel: 3
-  stairChance: 0.25
-  doorwayChance: 0.12
-  maxDoorwaysPerLane: 1
+  minLevel: -5
+  maxLevel: 5
+  stairChance: 0.2
+  turnChance: 0.18
+  minStepsBetweenTurns: 3
+  sideStepsMin: 2
+  sideStepsMax: 5
+  forkChance: 0.05
+  deadEndStepsMin: 2
+  deadEndStepsMax: 5
+  deadEndDoorwayChance: 0.35
+  doorwayChance: 0.05
+  maxDoorwaysPerLane: 4
   maxAttempts: 64

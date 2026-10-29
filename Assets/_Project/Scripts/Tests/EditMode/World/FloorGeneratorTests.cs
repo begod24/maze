@@ -132,13 +132,48 @@ namespace NoWayOut.Tests.EditMode.World
 
 
         [Test]
-        public void Generate_FixedSeed_PlacesExitBeyondMinimumRows()
+        public void Generate_ManySeeds_HasAtLeastUpperLaneSteps()
         {
-            FloorLayout layout = generator.Generate(FIXED_SEED);
-            Vector3Int exitAnchor = layout.Modules[layout.ExitIndex].Anchor;
-            int minimumRows = config.bridgeRowsMin + config.separationRowsMin;
+            for (int seed = FIRST_SEED; seed < FIRST_SEED + SEED_COUNT; seed++)
+            {
+                Assert.GreaterOrEqual(generator.Generate(seed).Modules.Count, config.upperLaneStepsMin, "seed " + seed);
+            }
+        }
 
-            Assert.GreaterOrEqual(exitAnchor.z, minimumRows);
+
+        [Test]
+        public void Generate_ManySeeds_ProducesTurnsAndDeadEnds()
+        {
+            bool hasTurn = false;
+            bool hasDeadEnd = false;
+
+            for (int seed = FIRST_SEED; seed < FIRST_SEED + SEED_COUNT; seed++)
+            {
+                foreach (PlacedModule module in generator.Generate(seed).Modules)
+                {
+                    hasTurn |= module.Definition.role == WorldModuleRole.Turn;
+                    hasDeadEnd |= module.Definition.role == WorldModuleRole.DeadEnd;
+                }
+            }
+
+            Assert.IsTrue(hasTurn, "no turns");
+            Assert.IsTrue(hasDeadEnd, "no dead ends");
+        }
+
+
+        [Test]
+        public void Generate_ManySeeds_KeepsLanesInsideHalfWidth()
+        {
+            for (int seed = FIRST_SEED; seed < FIRST_SEED + SEED_COUNT; seed++)
+            {
+                foreach (PlacedModule module in generator.Generate(seed).Modules)
+                {
+                    for (int i = 0; i < module.CellCount; i++)
+                    {
+                        Assert.That(Mathf.Abs(module.GetCell(i).x), Is.LessThanOrEqualTo(config.laneHalfWidth), "seed " + seed);
+                    }
+                }
+            }
         }
     }
 }

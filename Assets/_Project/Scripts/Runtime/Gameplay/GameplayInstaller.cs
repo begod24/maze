@@ -1,6 +1,7 @@
 using NoWayOut.Gameplay.Player;
 using NoWayOut.Gameplay.World;
 using NoWayOut.Gameplay.World.Generation;
+using NoWayOut.Gameplay.World.Weather;
 using VContainer;
 using VContainer.Unity;
 
@@ -10,13 +11,17 @@ namespace NoWayOut.Gameplay
     {
         private readonly PlayerConfig playerConfig;
         private readonly FloorConfig floorConfig;
+        private readonly FloorAtmosphereConfig atmosphereConfig;
+        private readonly WeatherConfig weatherConfig;
         private readonly WorldModuleCatalog moduleCatalog;
 
 
-        public GameplayInstaller(PlayerConfig playerConfig, FloorConfig floorConfig, WorldModuleCatalog moduleCatalog)
+        public GameplayInstaller(PlayerConfig playerConfig, FloorConfig floorConfig, FloorAtmosphereConfig atmosphereConfig, WeatherConfig weatherConfig, WorldModuleCatalog moduleCatalog)
         {
             this.playerConfig = playerConfig;
             this.floorConfig = floorConfig;
+            this.atmosphereConfig = atmosphereConfig;
+            this.weatherConfig = weatherConfig;
             this.moduleCatalog = moduleCatalog;
         }
 
@@ -25,6 +30,7 @@ namespace NoWayOut.Gameplay
         {
             RegisterConfigs(builder);
             RegisterFloor(builder);
+            RegisterWeather(builder);
             RegisterPlayerSpawner(builder);
         }
 
@@ -33,6 +39,8 @@ namespace NoWayOut.Gameplay
         {
             builder.RegisterInstance(playerConfig);
             builder.RegisterInstance(floorConfig);
+            builder.RegisterInstance(atmosphereConfig);
+            builder.RegisterInstance(weatherConfig);
             builder.RegisterInstance(moduleCatalog);
         }
 
@@ -40,7 +48,16 @@ namespace NoWayOut.Gameplay
         private void RegisterFloor(IContainerBuilder builder)
         {
             builder.Register<FloorGenerator>(Lifetime.Singleton);
+            builder.Register<PuddleField>(Lifetime.Singleton);
+            builder.Register<FogField>(Lifetime.Singleton);
+            builder.Register<FloorAtmosphere>(Lifetime.Singleton);
             builder.Register<IFloor, Floor>(Lifetime.Singleton);
+        }
+
+
+        private void RegisterWeather(IContainerBuilder builder)
+        {
+            builder.RegisterEntryPoint<WeatherService>().As<IWeather>();
         }
 
 

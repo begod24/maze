@@ -5,27 +5,23 @@ namespace NoWayOut.Gameplay.World.Generation
 {
     internal sealed class LinearFloorTemplate
     {
-        private const int UP = 1;
-        private const int DOWN = -1;
         private const int EAST_SIDE = 1;
         private const int CENTER = 0;
         private const int WEST_SIDE = -1;
-        private const int STAIR_ROWS = 2;
-        private const int STAIR_LOWER_LEVEL = 0;
-        private const int STAIR_UPPER_LEVEL = 1;
         private const int SYMMETRIC_ENTRY = 0;
-        private const float EVEN_CHANCE = 0.5f;
 
         private readonly FloorConfig config;
         private readonly ModulePicker picker;
         private readonly ModulePlacer placer;
+        private readonly LaneBuilder lanes;
 
 
-        public LinearFloorTemplate(FloorConfig config, ModulePicker picker, ModulePlacer placer)
+        public LinearFloorTemplate(FloorConfig config, ModulePicker picker, ModulePlacer placer, LaneBuilder lanes)
         {
             this.config = config;
             this.picker = picker;
             this.placer = placer;
+            this.lanes = lanes;
         }
 
 
@@ -40,19 +36,21 @@ namespace NoWayOut.Gameplay.World.Generation
 
             FloorWalker upper = ModulePlacer.WalkerFrom(start, ModulePlacer.FindPassage(startDefinition, GridDirection.North, EAST_SIDE));
             FloorWalker lower = ModulePlacer.WalkerFrom(start, ModulePlacer.FindPassage(startDefinition, GridDirection.North, WEST_SIDE));
+            LaneBounds eastHalf = new LaneBounds(EAST_SIDE, config.laneHalfWidth);
+            LaneBounds westHalf = new LaneBounds(-config.laneHalfWidth, WEST_SIDE);
 
-            if (!TryClimb(layout, upper, UP) || !TryClimb(layout, lower, DOWN))
+            if (!lanes.TryClimb(layout, upper, LaneBuilder.UP) || !lanes.TryClimb(layout, lower, LaneBuilder.DOWN))
             {
                 return null;
             }
 
-            int bridgeRows = random.Range(config.bridgeRowsMin, config.bridgeRowsMax + 1);
-            if (!TryFillBridges(layout, upper, bridgeRows, random))
+            int upperSteps = random.Range(config.upperLaneStepsMin, config.upperLaneStepsMax + 1);
+            if (!lanes.TryWander(layout, upper, eastHalf, upperSteps, random))
             {
                 return null;
             }
 
-            if (!TryBuildLowerPath(layout, upper, lower, variant, bridgeRows, random))
+            if (!TryBuildLowerPath(layout, upper, lower, westHalf, variant, random))
             {
                 return null;
             }
@@ -77,128 +75,41 @@ namespace NoWayOut.Gameplay.World.Generation
         }
 
 
-        private bool TryBuildLowerPath(FloorLayout layout, FloorWalker upper, FloorWalker lower, FloorStartVariant variant, int bridgeRows, DeterministicRandom random)
+        private bool TryBuildLowerPath(FloorLayout layout, FloorWalker upper, FloorWalker lower, LaneBounds westHalf, FloorStartVariant variant, DeterministicRandom random)
         {
             if (variant == FloorStartVariant.Loop)
             {
-                return TryBuildLoop(layout, lower, random);
+                return TryBuildLoop(layout, lower, random) && lanes.TryReachColumn(layout, upper, EAST_SIDE, random);
             }
 
-            if (!TryFillBridges(layout, lower, bridgeRows, random))
+            int lowerSteps = random.Range(config.lowerLaneStepsMin, config.lowerLaneStepsMax + 1);
+            if (!lanes.TryWander(layout, lower, westHalf, lowerSteps, random))
             {
                 return false;
             }
 
-            return TryAlignLanes(layout, upper, lower, random);
+            return TryMergeLanes(layout, upper, lower, random);
         }
 
 
-        private bool TryClimb(FloorLayout layout, FloorWalker walker, int direction)
-        {
-            WorldModuleDefinition stair = picker.GetSingle(WorldModuleRole.Stair);
-            int entryLevel = direction == UP ? STAIR_LOWER_LEVEL : STAIR_UPPER_LEVEL;
-            int entry = ModulePlacer.FindPassageAtLevel(stair, entryLevel);
-            return placer.TryAdvance(layout, walker, stair, entry);
-        }
-
-
-        private bool TryFillBridges(FloorLayout layout, FloorWalker walker, int rows, DeterministicRandom random)
-        {
-            Vector3Int origin = walker.Cell;
-
-            while (walker.DistanceAlongHeadingFrom(origin) < rows)
-            {
-                int remaining = rows - walker.DistanceAlongHeadingFrom(origin);
-                if (!TryPlaceBridgeStep(layout, walker, remaining, random))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-
-        private bool TryPlaceBridgeStep(FloorLayout layout, FloorWalker walker, int remainingRows, DeterministicRandom random)
-        {
-            if (remainingRows >= STAIR_ROWS && random.Chance(config.stairChance))
-            {
-                return TryClimb(layout, walker, PickStairDirection(walker.Level, random));
-            }
-
-            if (walker.DoorwayCount < config.maxDoorwaysPerLane && random.Chance(config.doorwayChance))
-            {
-                walker.CountDoorway();
-                return placer.TryAdvance(layout, walker, picker.GetSingle(WorldModuleRole.Doorway), SYMMETRIC_ENTRY);
-            }
-
-            return TryPlaceWalkway(layout, walker, random);
-        }
-
-
-        private bool TryPlaceWalkway(FloorLayout layout, FloorWalker walker, DeterministicRandom random)
-        {
-            WorldModuleDefinition definition = picker.PickWeighted(random, WorldModuleRole.Bridge, WorldModuleRole.Platform);
-            return placer.TryAdvance(layout, walker, definition, SYMMETRIC_ENTRY);
-        }
-
-
-        private int PickStairDirection(int level, DeterministicRandom random)
-        {
-            bool canClimb = level + 1 <= config.maxLevel;
-            bool canDescend = level - 1 >= config.minLevel;
-
-            if (canClimb && canDescend && random.Chance(EVEN_CHANCE))
-            {
-                return DOWN;
-            }
-
-            return canClimb ? UP : DOWN;
-        }
-
-
-        private bool TryAlignLanes(FloorLayout layout, FloorWalker upper, FloorWalker lower, DeterministicRandom random)
+        private bool TryMergeLanes(FloorLayout layout, FloorWalker upper, FloorWalker lower, DeterministicRandom random)
         {
             int lowest = Math.Min(upper.Level, lower.Level);
             int highest = Math.Max(upper.Level, lower.Level);
             int target = random.Range(lowest, highest + 1);
 
-            if (!TryReachLevel(layout, upper, target) || !TryReachLevel(layout, lower, target))
+            if (!lanes.TryReachLevel(layout, upper, target) || !lanes.TryReachLevel(layout, lower, target))
+            {
+                return false;
+            }
+
+            if (!lanes.TryReachColumn(layout, upper, EAST_SIDE, random) || !lanes.TryReachColumn(layout, lower, WEST_SIDE, random))
             {
                 return false;
             }
 
             int row = Math.Max(upper.Cell.z, lower.Cell.z);
-            return TryPadToRow(layout, upper, row, random) && TryPadToRow(layout, lower, row, random);
-        }
-
-
-        private bool TryReachLevel(FloorLayout layout, FloorWalker walker, int target)
-        {
-            while (walker.Level != target)
-            {
-                int direction = walker.Level < target ? UP : DOWN;
-                if (!TryClimb(layout, walker, direction))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-
-        private bool TryPadToRow(FloorLayout layout, FloorWalker walker, int row, DeterministicRandom random)
-        {
-            while (walker.Cell.z < row)
-            {
-                if (!TryPlaceWalkway(layout, walker, random))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return lanes.TryPadToRow(layout, upper, row, random) && lanes.TryPadToRow(layout, lower, row, random);
         }
 
 
@@ -206,7 +117,7 @@ namespace NoWayOut.Gameplay.World.Generation
         {
             int rows = random.Range(config.loopRowsMin, config.loopRowsMax + 1);
 
-            if (!TryPlaceWalkways(layout, walker, rows, random))
+            if (!lanes.TryPlaceWalkways(layout, walker, rows, random))
             {
                 return false;
             }
@@ -217,26 +128,12 @@ namespace NoWayOut.Gameplay.World.Generation
                 return false;
             }
 
-            if (!TryPlaceWalkways(layout, walker, rows, random) || !TryClimb(layout, walker, UP))
+            if (!lanes.TryPlaceWalkways(layout, walker, rows, random) || !lanes.TryClimb(layout, walker, LaneBuilder.UP))
             {
                 return false;
             }
 
-            return placer.TryAdvanceToward(layout, walker, picker.GetSingle(WorldModuleRole.Turn), GridDirection.East);
-        }
-
-
-        private bool TryPlaceWalkways(FloorLayout layout, FloorWalker walker, int count, DeterministicRandom random)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                if (!TryPlaceWalkway(layout, walker, random))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return lanes.TryTurn(layout, walker, GridDirection.East);
         }
 
 

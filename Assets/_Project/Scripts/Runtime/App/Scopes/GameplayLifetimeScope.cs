@@ -1,6 +1,7 @@
 using NoWayOut.Gameplay;
 using NoWayOut.Gameplay.Player;
 using NoWayOut.Gameplay.World;
+using NoWayOut.Gameplay.World.Weather;
 using NoWayOut.Networking.Spawning;
 using NoWayOut.UI;
 using NoWayOut.UI.Common;
@@ -14,6 +15,8 @@ namespace NoWayOut.App.Scopes
     {
         [SerializeField] private PlayerConfig playerConfig;
         [SerializeField] private FloorConfig floorConfig;
+        [SerializeField] private FloorAtmosphereConfig atmosphereConfig;
+        [SerializeField] private WeatherConfig weatherConfig;
         [SerializeField] private WorldModuleCatalog moduleCatalog;
         [SerializeField] private UIScreensConfig uiScreensConfig;
 
@@ -28,7 +31,7 @@ namespace NoWayOut.App.Scopes
 
         private void InstallGameplay(IContainerBuilder builder)
         {
-            new GameplayInstaller(playerConfig, floorConfig, moduleCatalog).Install(builder);
+            new GameplayInstaller(playerConfig, floorConfig, atmosphereConfig, weatherConfig, moduleCatalog).Install(builder);
         }
 
 

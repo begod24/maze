@@ -12,6 +12,7 @@ namespace NoWayOut.Gameplay.World
         private const string ROOT_NAME = "Floor";
 
         private readonly FloorGenerator generator;
+        private readonly FloorAtmosphere atmosphere;
         private readonly FloorConfig config;
         private readonly IObjectResolver resolver;
         private GameObject root;
@@ -21,9 +22,10 @@ namespace NoWayOut.Gameplay.World
         public PlayerSpawnPoints SpawnPoints { get; private set; }
 
 
-        public Floor(FloorGenerator generator, FloorConfig config, IObjectResolver resolver)
+        public Floor(FloorGenerator generator, FloorAtmosphere atmosphere, FloorConfig config, IObjectResolver resolver)
         {
             this.generator = generator;
+            this.atmosphere = atmosphere;
             this.config = config;
             this.resolver = resolver;
         }
@@ -45,6 +47,8 @@ namespace NoWayOut.Gameplay.World
                     SpawnPoints = instance.GetComponent<PlayerSpawnPoints>();
                 }
             }
+
+            atmosphere.Build(Layout, root.transform);
         }
 
 

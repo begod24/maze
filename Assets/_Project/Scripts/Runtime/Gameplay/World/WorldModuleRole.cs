@@ -11,6 +11,8 @@ namespace NoWayOut.Gameplay.World
         Corridor,
         Junction,
         Exit,
-        UTurn
+        UTurn,
+        Fork,
+        DeadEnd
     }
 }

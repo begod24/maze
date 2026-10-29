@@ -11,12 +11,12 @@ Shader "NoWayOut/Void Particle"
 
     SubShader
     {
-        Tags { "RenderPipeline" = "HDRenderPipeline" "RenderType" = "Transparent" "Queue" = "Transparent" }
+        Tags { "RenderPipeline" = "UniversalPipeline" "RenderType" = "Transparent" "Queue" = "Transparent" "IgnoreProjector" = "True" }
 
         Pass
         {
-            Name "ForwardOnly"
-            Tags { "LightMode" = "ForwardOnly" }
+            Name "ForwardUnlit"
+            Tags { "LightMode" = "UniversalForward" }
 
             Blend One OneMinusSrcAlpha
             ZWrite Off
@@ -28,9 +28,9 @@ Shader "NoWayOut/Void Particle"
             #pragma vertex Vert
             #pragma fragment Frag
 
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderVariables.hlsl"
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/AtmosphericScattering/AtmosphericScattering.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+            #include "Includes/FogCommon.hlsl"
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
@@ -53,7 +53,7 @@ Shader "NoWayOut/Void Particle"
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
-                float3 positionRWS : TEXCOORD0;
+                float3 positionWS : TEXCOORD0;
                 float4 color : COLOR;
                 float2 uv : TEXCOORD1;
             };
@@ -61,8 +61,8 @@ Shader "NoWayOut/Void Particle"
             Varyings Vert(Attributes input)
             {
                 Varyings output;
-                output.positionRWS = TransformObjectToWorld(input.positionOS);
-                output.positionCS = TransformWorldToHClip(output.positionRWS);
+                output.positionWS = TransformObjectToWorld(input.positionOS);
+                output.positionCS = TransformWorldToHClip(output.positionWS);
                 output.color = input.color;
                 output.uv = TRANSFORM_TEX(input.uv, _MainTex);
                 return output;
@@ -70,23 +70,17 @@ Shader "NoWayOut/Void Particle"
 
             float4 Frag(Varyings input) : SV_Target
             {
-                PositionInputs posInput = GetPositionInput(input.positionCS.xy, _ScreenSize.zw, input.positionCS.z, input.positionCS.w, input.positionRWS);
                 float4 texel = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
-
-                float sceneDepth = LinearEyeDepth(LoadCameraDepth(posInput.positionSS), _ZBufferParams);
-                float softFade = saturate((sceneDepth - posInput.linearDepth) / max(_SoftDistance, 0.001));
-                float nearFade = saturate((posInput.linearDepth - _ProjectionParams.y) / max(_NearFade, 0.001));
+                float2 screenUV = GetNormalizedScreenSpaceUV(input.positionCS);
+                float sceneDepth = LinearEyeDepth(SampleSceneDepth(screenUV), _ZBufferParams);
+                float particleDepth = LinearEyeDepth(input.positionWS, GetWorldToViewMatrix());
+                float softFade = saturate((sceneDepth - particleDepth) / max(_SoftDistance, 0.001));
+                float nearFade = saturate((particleDepth - _ProjectionParams.y) / max(_NearFade, 0.001));
                 float alpha = texel.a * input.color.a * _Tint.a * softFade * nearFade;
 
-                float3 color = texel.rgb * input.color.rgb * _Tint.rgb * _Intensity * GetCurrentExposureMultiplier();
+                float3 color = texel.rgb * input.color.rgb * _Tint.rgb * _Intensity;
                 float4 result = float4(color * alpha, alpha);
-
-                float3 V = GetWorldSpaceNormalizeViewDir(input.positionRWS);
-                float3 fogColor;
-                float3 fogOpacity;
-                EvaluateAtmosphericScattering(posInput, V, fogColor, fogOpacity);
-                result.rgb = result.rgb * (1.0 - fogOpacity) + fogColor * alpha;
-                return result;
+                return ApplyNoWayOutFogPremultiplied(result, GetCameraPositionWS(), input.positionWS);
             }
             ENDHLSL
         }

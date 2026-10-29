@@ -6,7 +6,7 @@ namespace NoWayOut.Editor.Tools
 {
     internal static class MaskMapPacker
     {
-        private const string MENU_PATH = "Tools/No Way Out/Pack HDRP Mask Map (from ARM)";
+        private const string MENU_PATH = "Tools/No Way Out/Pack Mask Map (from ARM)";
         private const string ARM_SUFFIX = "_ARM";
         private const string MASK_SUFFIX = "_Mask";
         private const string MASK_EXTENSION = ".png";

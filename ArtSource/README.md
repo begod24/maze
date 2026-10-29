@@ -24,7 +24,7 @@ ArtSource/
 | Locomotion animation (walk, run, jump, climb) | Mixamo on a Humanoid rig | `ThirdParty/Mixamo/` |
 | Unique animation (entities, "help up", holding hands) | Blender actions | the character's `.blend` |
 | Environment materials | Tiling PBR sets (Poly Haven / ambientCG, CC0) + triplanar Shader Graph in Unity | the texture set |
-| Character and prop textures | Substance Painter, HDRP export preset | the `.spp` |
+| Character and prop textures | Substance Painter, URP export preset | the `.spp` |
 
 ## Rules
 

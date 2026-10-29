@@ -10,7 +10,7 @@ namespace NoWayOut.UI.Screens.MainMenu
         private static readonly int DistortionId = Shader.PropertyToID("_Distortion");
         private static readonly int ScreenTimeId = Shader.PropertyToID("_ScreenTime");
         private static readonly int SeedId = Shader.PropertyToID("_Seed");
-        private static readonly int ScreenColorMapId = Shader.PropertyToID("_EmissiveColorMap");
+        private static readonly int ScreenColorMapId = Shader.PropertyToID("_BaseMap");
 
         [SerializeField] private MainMenuItem item;
         [SerializeField] private Texture sourceTexture;

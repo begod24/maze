@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.Rendering.Universal;
 using VContainer;
 
 namespace NoWayOut.Gameplay.World.Weather
@@ -19,7 +19,6 @@ namespace NoWayOut.Gameplay.World.Weather
         private const float FLASH_INTERVAL_JITTER_MIN = 0.5f;
         private const float FLASH_INTERVAL_JITTER_MAX = 1.5f;
         private const float RIPPLE_LIFT = 0.01f;
-        private const float FOG_SCROLL_TIME_MIN = 0.01f;
 
         [SerializeField] private ParticleSystem rain;
         [SerializeField] private ParticleSystem ash;
@@ -233,10 +232,8 @@ namespace NoWayOut.Gameplay.World.Weather
                 fogScrolls[i] = scroll;
 
                 float breath = (Mathf.PerlinNoise(time / layer.BreathPeriod, layer.BreathSeed) - NOISE_CENTER) * NOISE_SCALE;
-                LocalVolumetricFogArtistParameters parameters = layer.Volume.parameters;
-                parameters.meanFreePath = layer.BaseMeanFreePath / (1f + breath * layer.BreathAmplitude);
-                parameters.textureScrollingSpeed = time > FOG_SCROLL_TIME_MIN ? scroll / time : Vector3.zero;
-                layer.Volume.parameters = parameters;
+                layer.Volume.MeanFreePath = layer.BaseMeanFreePath / (1f + breath * layer.BreathAmplitude);
+                layer.Volume.NoiseOffset = scroll;
             }
         }
 
@@ -260,7 +257,7 @@ namespace NoWayOut.Gameplay.World.Weather
 
             float pulsePhase = elapsed * flashPulses;
             float pulse = 1f - (pulsePhase - Mathf.Floor(pulsePhase));
-            lightning.intensity = config.lightningIntensityLux * Mathf.Pow(pulse, PULSE_SHARPNESS) * (1f - elapsed * FLASH_FADE);
+            lightning.intensity = config.lightningIntensity * Mathf.Pow(pulse, PULSE_SHARPNESS) * (1f - elapsed * FLASH_FADE);
         }
 
 

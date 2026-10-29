@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.Rendering.Universal;
 
 namespace NoWayOut.Gameplay.World
 {

@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0aac16a59343340c781dcee554bada76, type: 3}
   m_Name: FloorAtmosphereConfig
   m_EditorClassIdentifier: NoWayOut.Gameplay::NoWayOut.Gameplay.World.FloorAtmosphereConfig
-  mistPrefab: {fileID: 5071777073411820797, guid: 6765a68614e0744ef8fb22937ea1ceba, type: 3}
-  driftFogPrefab: {fileID: 4306075258889799532, guid: fbf4bcece4fce4395a23a6ae1147aae8, type: 3}
-  wispFogPrefab: {fileID: 4306075258889799532, guid: 3550110845b634d1cb9b47173623e969, type: 3}
+  mistPrefab: {fileID: 8894177800188859977, guid: 6765a68614e0744ef8fb22937ea1ceba, type: 3}
+  driftFogPrefab: {fileID: 2011366296678768917, guid: fbf4bcece4fce4395a23a6ae1147aae8, type: 3}
+  wispFogPrefab: {fileID: 8788863759376787895, guid: 3550110845b634d1cb9b47173623e969, type: 3}
   blockPrefab: {fileID: 8920063736412318040, guid: 76b077c6609da412bbf5a4b72a149fe1, type: 3}
-  puddlePrefab: {fileID: 1962336695740168018, guid: 79774377f0f9b4922be64fba46b70319, type: 3}
+  puddlePrefab: {fileID: 4267741448376897999, guid: 79774377f0f9b4922be64fba46b70319, type: 3}
   horizontalMargin: 24
   mistDepth: 16
   mistTopOffset: 2

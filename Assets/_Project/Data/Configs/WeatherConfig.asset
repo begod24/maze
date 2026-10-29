@@ -99,7 +99,7 @@ MonoBehaviour:
   fogWindInfluence: 0.5
   lightningIntervalMin: 4
   lightningIntervalMax: 25
-  lightningIntensityLux: 18
+  lightningIntensity: 3.7471437
   lightningDuration: 0.45
   lightningPulsesMax: 3
   lightningPitchMin: 45

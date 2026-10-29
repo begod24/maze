@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace NoWayOut.Gameplay.World.Weather
 {
@@ -39,7 +40,7 @@ namespace NoWayOut.Gameplay.World.Weather
         public float fogWindInfluence = 0.5f;
         public float lightningIntervalMin = 4f;
         public float lightningIntervalMax = 25f;
-        public float lightningIntensityLux = 40f;
+        [FormerlySerializedAs("lightningIntensityLux")] public float lightningIntensity = 8f;
         public float lightningDuration = 0.45f;
         public int lightningPulsesMax = 3;
         public float lightningPitchMin = 45f;

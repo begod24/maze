@@ -1,6 +1,7 @@
 using NoWayOut.Gameplay.World.Generation;
+using NoWayOut.Rendering.Fog;
 using UnityEngine;
-using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.Rendering.Universal;
 
 namespace NoWayOut.Gameplay.World
 {
@@ -82,15 +83,12 @@ namespace NoWayOut.Gameplay.World
         }
 
 
-        private void SpawnFogVolume(LocalVolumetricFog prefab, Transform root, Vector3 center, Vector3 size, float patchSize, float breathAmplitude, float breathPeriod)
+        private void SpawnFogVolume(LocalFogVolume prefab, Transform root, Vector3 center, Vector3 size, float patchSize, float breathAmplitude, float breathPeriod)
         {
-            LocalVolumetricFog fog = Object.Instantiate(prefab, root);
+            LocalFogVolume fog = Object.Instantiate(prefab, root);
             fog.transform.localPosition = center;
-
-            LocalVolumetricFogArtistParameters parameters = fog.parameters;
-            parameters.size = size;
-            parameters.textureTiling = size / patchSize;
-            fog.parameters = parameters;
+            fog.Size = size;
+            fog.NoiseTiling = size / patchSize;
 
             float breathSeed = (fogs.Count + 1) * FOG_BREATH_SEED_STEP;
             fogs.Add(new FogLayer(fog, patchSize, breathAmplitude, breathPeriod, breathSeed));

@@ -1,14 +1,15 @@
+using NoWayOut.Rendering.Fog;
 using UnityEngine;
-using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.Rendering.Universal;
 
 namespace NoWayOut.Gameplay.World
 {
     [CreateAssetMenu(menuName = "No Way Out/Configs/Floor Atmosphere Config", fileName = "FloorAtmosphereConfig")]
     public sealed class FloorAtmosphereConfig : ScriptableObject
     {
-        public LocalVolumetricFog mistPrefab;
-        public LocalVolumetricFog driftFogPrefab;
-        public LocalVolumetricFog wispFogPrefab;
+        public LocalFogVolume mistPrefab;
+        public LocalFogVolume driftFogPrefab;
+        public LocalFogVolume wispFogPrefab;
         public VoidDrift blockPrefab;
         public DecalProjector puddlePrefab;
         public float horizontalMargin = 24f;

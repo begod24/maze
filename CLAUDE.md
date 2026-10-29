@@ -4,9 +4,9 @@
 
 **No Way Out** (RU: «Путь в никуда», working title) is a co-op (2–4 players) first-person psychological horror. The players are stuck in a void of stairs, doors and bridges between heaven and hell, and **each player sees a different version of the same space**. They have to describe what they see over proximity voice and decide whom to trust.
 
-Unity **6000.3.24f1**, **HDRP**, PC (Steam). Solo developer. **Talk to the user in Russian.**
+Unity **6000.3.24f1**, **URP** (Forward+), PC (Steam). Solo developer. **Talk to the user in Russian.**
 
-**Everything visual is realistic** (the user's standing rule, GDD §10). HDRP is chosen for realism, so use physically based solutions by default: PBR materials, physical light units and exposure, volumetric fog and lighting, SSR and SSGI, decals. Never fall back to a stylized, flat or placeholder look unless the user asks for it.
+**Everything visual is realistic** (the user's standing rule, GDD §10). The project moved from HDRP to URP, and realism stays the rule, so use physically based solutions by default: PBR materials, our own volumetric fog and lit fog halos, DBuffer decals, SSAO, shadows, volume post-processing. URP has no physical light units: convert them as TechnicalOverview §14 says. Never fall back to a stylized, flat or placeholder look unless the user asks for it.
 
 - Design: `Docs/GDD.md` (in Russian). **Read it before any gameplay or design work.** Tags: **[DECIDED]**, **[PROPOSED]**, **[OPEN]**.
 - Architecture: `Docs/TechnicalOverview.md`. **Read it before adding a system, a module or a networked feature.**
@@ -42,7 +42,6 @@ The repository (`github.com/begod24/maze`, branch `main`) has this Unity project
 
 ```
 Assets/_Project/                    all our content: Scripts, Prefabs, Data, Scenes, Art, Audio, UI, Settings
-Assets/Settings/                    HDRP-owned pipeline assets. Don't move them (HDRPProjectSettings points here)
 Assets/DefaultNetworkPrefabs.asset  NGO-owned default network prefab list. Don't move it
 Assets/AddressableAssetsData/       Addressables-owned (groups, including the Localization groups). Don't move it
 ArtSource/                          Blender sources, build scripts and third-party source files. Unity never imports them
@@ -60,6 +59,7 @@ Docs/References/GDD_v2_Concept.pdf  the second concept document (the source of t
 
 - **Assemblies.** They live under `Assets/_Project/Scripts`, and references only point down:
   `App → UI → Gameplay → (Voice, Networking) → Infrastructure → Core`.
+  - `NoWayOut.Rendering` (our URP features: volumetric fog) sits under Gameplay and references only the render pipeline packages.
   - `App` is the composition root and may reference everything.
   - `NoWayOut.Editor` and `NoWayOut.Tests.EditMode` are editor-only.
   - **No code goes outside an asmdef.**
@@ -114,6 +114,6 @@ Docs/References/GDD_v2_Concept.pdf  the second concept document (the source of t
 | `add-config` | a new ScriptableObject config and its asset |
 | `add-network-behaviour` | a networked object or feature: authority, RPCs, NetworkVariables, spawning |
 | `add-ui-screen` | a UI Toolkit screen or HUD element: UXML/USS, View + Presenter, localization, showing it from a state |
-| `blender-asset` | a model from Blender to Unity: build scripts for the environment, characters, Mixamo, HDRP materials, prefab |
+| `blender-asset` | a model from Blender to Unity: build scripts for the environment, characters, Mixamo, URP materials, prefab |
 | `design-decision` | any design question: options with ★, the user's pick, then GDD tags and Decisions |
 | `suno-music-prompt` | a ready-to-paste Suno prompt for a menu, ambient layer, stinger or finale track |

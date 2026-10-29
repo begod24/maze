@@ -6,6 +6,7 @@
         "NoWayOut.Infrastructure",
         "NoWayOut.Networking",
         "NoWayOut.Voice",
+        "NoWayOut.Rendering",
         "NoWayOut.Gameplay",
         "NoWayOut.UI",
         "UniTask",

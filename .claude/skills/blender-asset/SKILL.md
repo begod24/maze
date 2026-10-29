@@ -1,6 +1,6 @@
 ---
 name: blender-asset
-description: Make a 3D asset for No Way Out and bring it into Unity — environment pieces and level modules from Blender Python build scripts, hand-made or purchased characters and entities, Mixamo animations on a Humanoid rig, HDRP materials (tiling PBR + triplanar for the environment, Substance Painter for characters and props), FBX export and import settings, and the prefab. Use for any model, animation or material work.
+description: Make a 3D asset for No Way Out and bring it into Unity — environment pieces and level modules from Blender Python build scripts, hand-made or purchased characters and entities, Mixamo animations on a Humanoid rig, URP materials (tiling PBR + triplanar for the environment, Substance Painter for characters and props), FBX export and import settings, and the prefab. Use for any model, animation or material work.
 ---
 
 # Blender → Unity asset
@@ -97,17 +97,17 @@ bpy.ops.export_scene.fbx(
 - Files copied in before the postprocessor compiled keep the old settings: reimport them (`ImportAssetOptions.ForceUpdate`).
 - After import, the model root must have rotation (0, 0, 0) and scale 1. If it doesn't, fix the importer or the export settings, never the prefab.
 
-## 6. HDRP materials
+## 6. URP materials
 
 - **Environment:**
   - Use tiling PBR sets (Poly Haven / ambientCG, CC0). Downloading files needs the user's OK: ask first, or let the user download.
   - Textures go in `Art/Textures/<Set>/T_<Set>_BaseColor`, `_Normal`, `_Mask`.
-  - **HDRP Mask map** channels: R metallic, G AO, B detail mask, A smoothness = 1 − roughness. Select a `T_<Name>_ARM` texture (glTF/Poly Haven packing: R AO, G roughness, B metallic) and run `Tools → No Way Out → Pack HDRP Mask Map (from ARM)` [exists]. It writes `T_<Name>_Mask.png` next to it. Then delete the ARM copy from `Assets` (the original stays in `ArtSource/ThirdParty`). Sets with separate maps need the tool extended first.
-  - Materials use the triplanar Shader Graph `Art/Shaders/SG_TriplanarLit` (HDRP Lit target, world-space, tiling and blend sharpness, created on first use). They live in `Art/Materials/Environment/M_<Set>.mat`.
+  - **Mask map** channels: R metallic, G AO, B unused (255), A smoothness = 1 − roughness. Select a `T_<Name>_ARM` texture (glTF/Poly Haven packing: R AO, G roughness, B metallic) and run `Tools → No Way Out → Pack Mask Map (from ARM)` [exists]. It writes `T_<Name>_Mask.png` next to it. Then delete the ARM copy from `Assets` (the original stays in `ArtSource/ThirdParty`). Sets with separate maps need the tool extended first.
+  - Materials use `NoWayOut/Triplanar Lit` (`Art/Shaders/TriplanarLit.shader` [exists]: world-space, `_TexWorldScale`, `_BlendSharpness`, mask map with metallic/smoothness/AO remap ranges, enable `_NORMALMAP` and `_MASKMAP`). They live in `Art/Materials/Environment/M_<Set>.mat`.
 - **Characters and props:**
   - Substance Painter project in `ArtSource/Substance/<Name>.spp`.
-  - Export preset **Unity HD Render Pipeline (Metallic Standard)**, renamed to `T_<Name>_BaseColor/_Mask/_Normal` in `Art/<Domain>/<Name>/Textures/`.
-  - Material `M_<Name>` uses HDRP/Lit.
+  - Export preset **Unity Universal Render Pipeline (Metallic Standard)**, or the HDRP preset packed into the same mask map, renamed to `T_<Name>_BaseColor/_Mask/_Normal` in `Art/<Domain>/<Name>/Textures/`.
+  - Material `M_<Name>` uses `Universal Render Pipeline/Lit`: `_BaseMap`, `_BumpMap`, the mask as both `_MetallicGlossMap` and `_OcclusionMap`, `_Smoothness` 1 (keywords `_NORMALMAP`, `_METALLICSPECGLOSSMAP`, `_OCCLUSIONMAP`).
 - **Texture import:**
   - BaseColor in sRGB.
   - Mask and Normal not sRGB. Normal uses texture type Normal map.

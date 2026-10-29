@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8024421470601242257}
-  - component: {fileID: 4306075258889799532}
+  - component: {fileID: 2011366296678768917}
   m_Layer: 0
   m_Name: VoidFogDrift
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4306075258889799532
+--- !u!114 &2011366296678768917
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,31 +41,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 596760842898683392}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1fbb15bf92b84f40a1eb030765b5afe, type: 3}
+  m_Script: {fileID: 11500000, guid: 781d5bd0275ba433ca29e1caad63c140, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.LocalVolumetricFog
-  m_Version: 3
-  parameters:
-    albedo: {r: 0.66, g: 0.71, b: 0.8, a: 1}
-    meanFreePath: 4
-    blendingMode: 1
-    priority: 0
-    anisotropy: 0
-    volumeMask: {fileID: 11700000, guid: 410a3c979f4e14099a53ad588456cbab, type: 2}
-    textureScrollingSpeed: {x: 0.018, y: 0.004, z: 0.012}
-    textureTiling: {x: 4, y: 2, z: 4}
-    positiveFade: {x: 0.08, y: 0.15, z: 0.08}
-    negativeFade: {x: 0.08, y: 0.15, z: 0.08}
-    m_EditorUniformFade: 0.1
-    m_EditorPositiveFade: {x: 0.1, y: 0.1, z: 0.1}
-    m_EditorNegativeFade: {x: 0.1, y: 0.1, z: 0.1}
-    m_EditorAdvancedFade: 0
-    scaleMode: 0
-    size: {x: 60, y: 30, z: 60}
-    invertFade: 0
-    distanceFadeStart: 10000
-    distanceFadeEnd: 10000
-    textureOffset: {x: 0, y: 0, z: 0}
-    falloffMode: 0
-    maskMode: 0
-    materialMask: {fileID: 0}
+  m_EditorClassIdentifier: NoWayOut.Rendering::NoWayOut.Rendering.Fog.LocalFogVolume
+  volumeSet: {fileID: 11400000, guid: 3fde1f3a37e1644258941dc121cf1267, type: 2}
+  albedo: {r: 0.66, g: 0.71, b: 0.8, a: 1}
+  meanFreePath: 4
+  size: {x: 60, y: 30, z: 60}
+  positiveFade: {x: 0.08, y: 0.15, z: 0.08}
+  negativeFade: {x: 0.08, y: 0.15, z: 0.08}
+  noiseTiling: {x: 4, y: 2, z: 4}
+  noiseScrollSpeed: {x: 0.018, y: 0.004, z: 0.012}

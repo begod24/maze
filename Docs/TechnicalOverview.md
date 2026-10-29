@@ -17,7 +17,7 @@ A co-op (2–4) first-person psychological horror. The players walk a procedural
 | What | Version | Used for |
 |---|---|---|
 | Unity | 6000.3.24f1 | Engine |
-| HDRP | 17.3.0 | Rendering: volumetric fog, lighting, custom passes for perception effects |
+| URP | 17.3.0 | Rendering: Forward+, DBuffer decals, SSAO, volume post-processing, our own volumetric fog and renderer features for perception effects |
 | Netcode for GameObjects | 2.13.3 | Networking (host = server + client) |
 | Multiplayer Services | 2.4.1 | Sessions (create/join by code), Relay, Authentication |
 | Vivox | 16.12.1 | Proximity voice chat [PLANNED] |
@@ -34,7 +34,7 @@ A co-op (2–4) first-person psychological horror. The players walk a procedural
 | Test Framework | 1.6.0 | EditMode tests |
 | Blender (+ Blender MCP) | — | Models, sources in `ArtSource/` |
 
-Removed on purpose: `com.unity.postprocessing` (Post Processing v2 is for the Built-in pipeline; HDRP has its own volume post-processing) and `com.unity.visualscripting`.
+Removed on purpose: `com.unity.postprocessing` (Post Processing v2 is for the Built-in pipeline; URP has its own volume post-processing), `com.unity.visualscripting`, and `com.unity.render-pipelines.high-definition` (the project moved from HDRP to URP, see Decisions).
 
 ---
 
@@ -68,19 +68,18 @@ Assets/
     Audio/                       Ambience, Music, SFX
     Data/                        ScriptableObject assets: Configs, Entities, Illusions, Items, World
     Prefabs/                     Entities, Interactables, Items, Network, Player, Scopes, UI, World
-    Scenes/                      Boot, MainMenu, Gameplay (build order) and Sandbox/ for dev scenes (OutdoorsScene is the HDRP template scene, kept as a lighting reference)
+    Scenes/                      Boot, MainMenu, Gameplay (build order) and Sandbox/ for dev scenes
     Scripts/
       Runtime/<Assembly>/        one folder per runtime assembly (§5)
       Editor/                    NoWayOut.Editor
       Tests/EditMode/            NoWayOut.Tests.EditMode
     UI/                          UI Toolkit: Panel/ (PanelSettings, theme), Styles/ (Variables.uss, Common.uss), Screens/<Screen>/, Fonts/
-    Settings/                    Input/, Localization/ (settings, locales, tables), Rendering/, VContainerSettings.asset
-  Settings/                      HDRP-owned (quality tiers, global settings, default resources). Don't move
+    Settings/                    Input/, Localization/ (settings, locales, tables), Rendering/ (URP assets, renderers, global settings, volume profiles, FogVolumeSet), VContainerSettings.asset
   DefaultNetworkPrefabs.asset    NGO-owned default network prefab list. Don't move
   AddressableAssetsData/         Addressables-owned (created by Localization; holds the Localization groups). Don't move
 ```
 
-- **Package-owned assets stay where the package expects them.** HDRP stores `m_ProjectSettingFolderPath: Settings/HDRPDefaultResources`. NGO generates `Assets/DefaultNetworkPrefabs.asset`. Addressables creates `Assets/AddressableAssetsData/` on first use.
+- **Package-owned assets stay where the package expects them.** NGO generates `Assets/DefaultNetworkPrefabs.asset`. Addressables creates `Assets/AddressableAssetsData/` on first use.
 - **Third-party store assets** keep their own root folders and are never edited.
 - Folders inside `Art/` and `Prefabs/` are grouped by **domain** (Entities, Environment…). Inside a domain, one folder per asset holds its model, materials and textures together (`Art/Entities/Observer/...`).
 - **Modular kits share one folder**, with no folder per piece: level modules are `Art/Environment/Modules/<Name>.fbx`, `Prefabs/World/Modules/<Name>.prefab` and `Data/World/Modules/<Name>.asset`. They use the shared materials in `Art/Materials/Environment/` and the shared textures in `Art/Textures/Environment/`.
@@ -93,7 +92,7 @@ Assets/
 | Prefab | PascalCase | `Observer.prefab`, `DoorWooden.prefab` |
 | Model | PascalCase `.fbx` | `Observer.fbx` |
 | Material | `M_` | `M_ConcreteWet` |
-| Texture | `T_<Name>_<Map>` (HDRP maps: `BaseColor`, `Normal`, `Mask`, `Emissive`) | `T_Concrete_Mask` |
+| Texture | `T_<Name>_<Map>` (maps: `BaseColor`, `Normal`, `Mask` = R metallic, G occlusion, A smoothness, `Emissive`) | `T_Concrete_Mask` |
 | Shader Graph / Sub Graph | `SG_` / `SSG_` | `SG_IllusionDissolve` |
 | VFX Graph | `VFX_` | `VFX_VoidDust` |
 | Volume profile | `VP_` | `VP_VoidDefault` |
@@ -107,7 +106,7 @@ Assets/
 
 ## 5. Assemblies and the dependency rule
 
-References only point **down** this chain: **App → UI → Gameplay → (Voice, Networking) → Infrastructure → Core.** Voice and Networking don't reference each other.
+References only point **down** this chain: **App → UI → Gameplay → (Voice, Networking) → Infrastructure → Core.** Voice and Networking don't reference each other. `NoWayOut.Rendering` sits beside them under Gameplay and references only the render pipeline packages.
 
 | Assembly | Folder | Responsibility | References (ours) |
 |---|---|---|---|
@@ -115,7 +114,8 @@ References only point **down** this chain: **App → UI → Gameplay → (Voice,
 | `NoWayOut.Infrastructure` | Runtime/Infrastructure | App services: scenes, assets (Addressables), state factory; later input, settings, save, audio | Core |
 | `NoWayOut.Networking` | Runtime/Networking | Sessions (Multiplayer Services + Relay), NetworkManager, DI for network prefabs | Core, Infrastructure |
 | `NoWayOut.Voice` | Runtime/Voice | Vivox voice: channels, per-player audio [PLANNED] | Core, Infrastructure |
-| `NoWayOut.Gameplay` | Runtime/Gameplay | `Player/`, `Perception/`, `World/`, `Entities/`, `Interaction/`, `Items/`, `Run/` | Core, Infrastructure, Networking, Voice |
+| `NoWayOut.Rendering` | Runtime/Rendering | URP rendering of our own: volumetric fog (`Fog/`), later perception renderer features. No installer: features and components are wired through URP assets, not DI | — |
+| `NoWayOut.Gameplay` | Runtime/Gameplay | `Player/`, `Perception/`, `World/`, `Entities/`, `Interaction/`, `Items/`, `Run/` | Core, Infrastructure, Networking, Voice, Rendering |
 | `NoWayOut.UI` | Runtime/UI | `Screens/`, `HUD/`, `Common/` | Core, Infrastructure, Networking, Gameplay |
 | `NoWayOut.App` | Runtime/App | Composition root: lifetime scopes, `GameStateMachine` and app states, entry point | all of the above |
 | `NoWayOut.Editor` | Editor | Editor tools (`No Way Out → Play From Boot Scene`) | — |
@@ -284,7 +284,7 @@ GameEntryPoint (root, IAsyncStartable)
 - `PlayerSpawner` (Gameplay/Player, server only) spawns one player object per client at the `PlayerSpawnPoints` of the generated floor's start module (`IFloor.SpawnPoints`) on the events above.
 - `PlayerController` runs only for the owner: `PlayerLook` (yaw on the body, pitch on the pivot) and `PlayerMotor` (walk, sprint, jump, gravity). Tuning is in `PlayerConfig` (`Data/Configs`). The owner's body only casts a shadow.
 - Falling below `PlayerConfig.fallRespawnHeight` teleports the player back to its spawn point [TEMPORARY until death and the Echo are designed, GDD §4.4–4.5].
-- The level is a generated floor (§12). `Gameplay.unity` holds the scope, the camera, `FloorState` and `Lighting` (sun and sky volume copied from the HDRP template) [TEMPORARY until the void look pass].
+- The level is a generated floor (§12). `Gameplay.unity` holds the scope, the camera, `FloorState` and `Lighting` (sun and the `VP_Gameplay` global volume) [TEMPORARY until the void look pass].
 
 ### Testing
 The user tests with Multiplayer Play Mode (`Window → Multiplayer → Multiplayer Play Mode`). Claude enters Play Mode only when the user allows it for the current task (CLAUDE.md).
@@ -314,7 +314,7 @@ The goal is one physical world for everyone, with different perception per playe
 - **Other players' bodies are truth.** Avatars move with real physics. Illusions that fake avatars (doppelganger, missing teammate) are a separate, rarer layer.
 - **Rendering.**
   - Fake objects use a dedicated `Illusion` layer.
-  - Perception effects use HDRP volume overrides and custom passes.
+  - Perception effects use URP volume overrides and renderer features (Render Graph) in `NoWayOut.Rendering`.
   - Accessibility settings (grain, chromatic aberration, distortion strength) only change **cosmetic** post-processing, never gameplay illusions.
 - **The HUD must not leak the truth.** No distance-to-teammate readouts and no "who is speaking" indicators that the illusions can't fake (GDD §11).
 
@@ -354,24 +354,31 @@ The goal is one physical world for everyone, with different perception per playe
 
 ---
 
-## 14. Rendering (HDRP)
+## 14. Rendering (URP)
 
-- Pipeline assets live in `Assets/Settings` (HDRP-owned), with the quality tiers Performant, Balanced and High Fidelity. SSR is on in High Fidelity and Balanced, SSGI only in High Fidelity, volumetrics are off in Performant.
-- Our volume profiles, diffusion profiles and custom pass assets go in `_Project/Settings/Rendering`.
-- **The look is realistic** (GDD §10) [DONE: first pass]:
-  - `VP_Gameplay` (the Gameplay scene's global volume): gradient sky (sky exposure 3.6, it lights the fog as ambient), volumetric height fog (mean free path 7 m, albedo ~0.65 like water droplets, fog GI dimmer 0.55, base at +24 m above the top level, volumetric depth extent 40 m; with the noise layers below the average is ~3.8 m → silhouettes at 8–10 m), fixed exposure EV 0.35, ACES, bloom, vignette, film grain, light chromatic aberration, SSAO, SSR (min smoothness 0.5), SSGI.
-  - **Gotcha: HDRP height fog attenuates directional lights** (`TransmittanceHeightFog` in `LightEvaluation.hlsl`, also inside volumetric lighting). Dense height fog above the walkways makes the sun useless and the fog black, so dense fog is lit by sky ambient (`globalLightProbeDimmer` 1) and lamps.
-  - **Light:** the directional light stays as a weak cold light from above for the top levels and shafts. `Prefabs/World/Props/WarmLamp` (point light, 350 lm, 2700 K, emissive housing, volumetric halo) sits in the Doorway, Start and ExitRoom prefabs.
-  - **Materials:** environment concrete is HDRP Lit, triplanar, with Poly Haven textures in `Art/Textures/Environment` (BaseColor, Normal, Mask packed from ARM). The floor is glossier, so it reads as wet.
-  - **`FloorAtmosphere`** (Gameplay/World, plain C#, `FloorAtmosphereConfig`) builds a client-local `Atmosphere` child under the floor from the floor seed: `VoidMist` (Local Volumetric Fog below the floor), two floor-wide Local Volumetric Fogs with scrolling 3D noise that carry part of the fog density, so the fog is patchy and moves: `VoidFogDrift` (banks, mfp 4, 20 m patches) and `VoidFogWisps` (fine wisps, mfp 16, 7 m patches, faster and slowly rising). Every fog volume goes into `FogField` as a `FogLayer` (base mfp, base scroll, patch size, breathing). Each frame `WeatherView` makes the layers live: density "breathes" (Perlin over `*BreathPeriod`, ±`*BreathAmplitude`) and the noise drifts with the weather wind (`fogWindInfluence`). Floating blocks (`FloatingBlock` + `VoidDrift`, no colliders, kept clear of floor cells, count from the area with a cap) and puddles (`Puddle` HDRP decals from a 4×4 shape atlas: wet rim darkens and adds gloss, flat mirror-like water core; more on wide modules, few on bridges, never on stairs). Puddles go into `PuddleField` for the weather.
-  - **Local Volumetric Fog can't be checked in editor previews:** HDRP prepares its draw calls in a player-loop step, so it doesn't appear in `Camera.Render` captures from Unity MCP. Check it in Play Mode.
-  - **Gotcha: Local Volumetric Fog scroll is absolute.** HDRP's fog shader samples the mask at `uv × tiling + textureScrollingSpeed × time` (`time` = `Time.time` in Play Mode, in noise patches), so the pattern moves *against* the speed vector, and changing the speed at runtime makes the fog jump. To drive it smoothly, `WeatherView` integrates its own offset (wrapped to one patch) and sets `textureScrollingSpeed = offset / Time.time` every frame.
+- **Pipeline:** URP 17.3, **Forward+** (the fog's light loop needs the cluster lists), HDR, SMAA on cameras. Assets live in `_Project/Settings/Rendering`: `URP_HighFidelity`, `URP_Balanced`, `URP_Performant` (one per quality level, each with its own `*_Renderer`), `UniversalRenderPipelineGlobalSettings`, `VP_Default`. Every renderer has three features: **Decal** (DBuffer: albedo, normal, MAOS), **SSAO** and our **Volumetric Fog**. Tiers differ in shadow resolution, distance and cascades, SSAO resolution, and fog resolution and steps (High Fidelity 1/2 res and 64 steps, Balanced 1/2 and 40, Performant 1/3 and 24). Fog stays on in every tier because visibility is gameplay (GDD §10).
+- Our volume profiles (`VP_`) also go in `_Project/Settings/Rendering`.
+- **Light units.** URP has no physical light units and no exposure. HDRP values were converted with the HDRP exposure baked in (`s = 1 / (1.2 · 2^EV)`: gameplay EV 0.35 → 0.654, menu EV 4.5 → 0.037): directional = lux · s / π, point = lumen · s / (4π²), emission = nits · s. Lamp 350 lm → 5.8, sun 5 lux → 1.04, lightning 18 lux → 3.75 (`WeatherConfig.lightningIntensity`). New lights follow the same rule or get tuned by eye against the fog.
+- **The look is realistic** (GDD §10) [DONE: first pass, matched against HDRP captures]:
+  - `VP_Gameplay`: `VolumetricFog` (mean free path 7 m, base +24 m above the top level, maximum height 64 m, albedo ~0.65 like water droplets, ambient light (0.04, 0.05, 0.068), anisotropy 0.7, main light scattering 3, additional lights scattering 2.5, max distance 40 m), ACES, bloom, vignette, film grain, light chromatic aberration, color adjustments (contrast 12, saturation −15). With the noise layers below the average is ~3.8 m, so silhouettes fade at 8–10 m.
+  - **Sky, ambient, reflections.** `M_GradientSky` (`NoWayOut/Gradient Sky`, the old HDRP gradient colors) is the skybox. Ambient is Trilight (sky colors × 0.25). Reflections come from `Art/Textures/Environment/T_SkyReflection_Gameplay`, a cubemap baked from the gradient by `Tools → No Way Out → Bake Sky Reflection (Active Scene)`. **Rebake it after changing the sky.** The main menu has no sky, black ambient and reflection intensity 0.
+  - **The sun in fog.** As in HDRP, the directional light is attenuated by the height fog above each point (`SunTransmittance` in the fog shader, `NoWayOutSunTransmittance` in `Art/Shaders/Includes/FogCommon.hlsl`, used by `NoWayOut/Triplanar Lit`). The sun barely reaches the walkways and only lights the top levels and shafts. Dense fog is lit by its ambient and the lamps. URP Lit materials (props) don't apply this attenuation.
+  - **Light:** the directional light stays as a weak cold light from above. `Prefabs/World/Props/WarmLamp` (point light 5.8 ≈ 350 lm, 2700 K, soft shadows, emissive housing) sits in the Doorway, Start and ExitRoom prefabs and gives the fog its halos.
+  - **Materials:** environment concrete uses `NoWayOut/Triplanar Lit` (`Art/Shaders/TriplanarLit.shader`, hand-written URP shader): world-space triplanar (`_TexWorldScale`, `_BlendSharpness`), whiteout normal blend, mask map (R metallic, G occlusion, A smoothness) with remap ranges, DBuffer decals, SSAO, Forward+, Poly Haven textures in `Art/Textures/Environment`. The floor is glossier, so it reads as wet. Props use URP Lit with the mask map as both Metallic and Occlusion map and smoothness 1.
+  - **Decals:** `NoWayOut/Decal` (`Art/Shaders/Decal.shader`) is a hand-written DBuffer projector shader for the URP `DecalProjector`: base color × base map, mask map metallic/occlusion/smoothness, an optional flat normal, all with the base alpha as opacity (HDRP's "albedo alpha" blend source). `_DrawOrder` sorts projectors.
+  - **`FloorAtmosphere`** (Gameplay/World, plain C#, `FloorAtmosphereConfig`) builds a client-local `Atmosphere` child under the floor from the floor seed: `VoidMist` (a `LocalFogVolume` below the floor), two floor-wide `LocalFogVolume`s with 3D noise that carry part of the fog density, so the fog is patchy and moves: `VoidFogDrift` (banks, mfp 4, 20 m patches) and `VoidFogWisps` (fine wisps, mfp 16, 7 m patches, faster and slowly rising). Every fog volume goes into `FogField` as a `FogLayer` (base mfp, base scroll, patch size, breathing). Each frame `WeatherView` makes the layers live: density "breathes" (Perlin over `*BreathPeriod`, ±`*BreathAmplitude`) and the noise drifts with the weather wind (`fogWindInfluence`): it integrates its own offset (wrapped to one patch) into `LocalFogVolume.NoiseOffset`. Floating blocks (`FloatingBlock` + `VoidDrift`, no colliders, kept clear of floor cells, count from the area with a cap) and puddles (`Puddle` decals from a 4×4 shape atlas: wet rim darkens and adds gloss, flat mirror-like water core; more on wide modules, few on bridges, never on stairs). Puddles go into `PuddleField` for the weather.
+  - **Fog in editor previews:** our pass runs inside `Camera.Render`, so `Preview Generated Floor` plus a capture shows the global and local fog. The noise only moves in Play Mode.
   - **Camera effects:** `VoidDust` and `VoidSmoke` are children of the Gameplay `Main Camera` with `WorldAlignedFollower`, which keeps them world-aligned. Smoke is emitted 14 m below the camera and rises.
-  - **Particles** use the built-in Particle System with `NoWayOut/Void Particle` (`Art/Shaders/VoidParticle.shader`): vertex color × texture × tint, soft particles against scene depth, HDRP fog through `EvaluateAtmosphericScattering`, exposure-aware intensity. VFX Graph is for heavier effects later.
+  - **Particles** use the built-in Particle System with `NoWayOut/Void Particle` (`Art/Shaders/VoidParticle.shader`): vertex color × texture × tint × intensity, soft particles against the depth texture, and the analytic height fog from `FogCommon.hlsl` (the global part only, no local volumes). VFX Graph is for heavier effects later.
+- **Volumetric fog** [DONE] (`NoWayOut.Rendering`, Runtime/Rendering/Fog):
+  - `VolumetricFog` is a volume override (`No Way Out/Volumetric Fog`) with the global height fog and the scattering settings. Volumes blend it as usual: the weather volumes override only `meanFreePath`.
+  - `LocalFogVolume` (replaces HDRP's Local Volumetric Fog) is a box: size, albedo, mfp, per-axis edge fades, noise tiling, base scroll speed and a runtime `NoiseOffset`. It registers itself in `Settings/Rendering/FogVolumeSet.asset`, which the renderer feature also references. Up to 16 volumes within reach of the camera are used.
+  - `VolumetricFogFeature` → `VolumetricFogPass` (Render Graph, before transparents, Game and Scene View cameras): (1) **raymarch** at 1/downsample resolution (`Hidden/NoWayOut/Volumetric Fog`): quadratic step spacing up to `maxDistance` with per-pixel jitter, extinction = height fog + local volumes (alpha of `T_VoidMist_Noise3D`), light = ambient + main light (cascaded shadows × sun transmittance) + Forward+ cluster lights (with point/spot shadows) through a Henyey-Greenstein phase, energy-conserving integration and an analytic tail past `maxDistance`; (2) a depth-aware separable **blur**; (3) a depth-aware **upsample** composited onto the camera color (`color × T + scattering`). It also sets `_NoWayOutFogParams` and `_NoWayOutFogColor` for transparent and surface shaders.
+  - It needs Forward+. In plain Forward the lamps would not light the fog.
 - **Weather** [DONE: visual] (Gameplay/World/Weather, `WeatherConfig`):
   - **Authority:** `WeatherState` (in-scene `NetworkObject` in `Gameplay.unity`, auto-injected) runs the schedule on the server: a weighted random next preset, each lasting `durationMin`–`durationMax`, written to a `NetworkVariable<int>`. `debugPresetIndex` ≥ 0 pins one preset for testing. Every peer passes it to `IWeather`.
   - **`WeatherService`** (`IWeather`, `ITickable`, plain C#) blends a `WeatherSample` (rain, storm, ash, wind, fog) to the preset over `transitionSeconds` and tracks wetness (rises over `wetRiseSeconds` of rain, dries over `wetDrySeconds`). EditMode tests cover it.
-  - **`WeatherView`** (on `Prefabs/World/Atmosphere/Weather`, a child of the Gameplay `Main Camera`, world-aligned) applies the sample every frame: rain rate and wind drift (rain collides with module colliders and spawns splash crowns and rings as sub-emitters), puddle ripples emitted only inside nearby `PuddleField` puddles, puddle size and opacity from wetness, the `WetSurface` decal (darker, glossier ground), ash (more on lower levels), wind force on ash, dust and smoke, lightning flashes (a directional light with a strong volumetric dimmer, random timing per client), the living fog layers from `FogField` (wind drift and breathing) and two global volumes: `VP_WeatherDense` (rain/ash/fog thicken the fog) and `VP_WeatherClear` (wind gusts open it for a moment).
+  - **`WeatherView`** (on `Prefabs/World/Atmosphere/Weather`, a child of the Gameplay `Main Camera`, world-aligned) applies the sample every frame: rain rate and wind drift (rain collides with module colliders and spawns splash crowns and rings as sub-emitters), puddle ripples emitted only inside nearby `PuddleField` puddles, puddle size and opacity from wetness, the `WetSurface` decal (darker, glossier ground), ash (more on lower levels), wind force on ash, dust and smoke, lightning flashes (an additional directional light, not attenuated by the height fog, random timing per client), the living fog layers from `FogField` (wind drift and breathing) and two global volumes: `VP_WeatherDense` (rain/ash/fog thicken the fog) and `VP_WeatherClear` (wind gusts open it for a moment).
   - Presentation is client-local. Lightning timing and gust phase differ slightly between clients; the preset itself is the same for everyone.
 
 ---
@@ -391,7 +398,7 @@ The goal is one physical world for everyone, with different perception per playe
   - A `<Screen>Presenter` (plain C#, internal, registered in the scene scope by `UIInstaller`) talks to services and the event bus and drives the View. The View gets its Presenter through `[Inject] Construct` and attaches and detaches in `OnEnable`/`OnDisable`.
 - **Showing screens.** `IScreenService` (NoWayOut.UI, Scoped) shows and hides screens by View type. It instantiates them through the scene scope's resolver, from the prefab list in `UIScreensConfig` (`Data/Configs`), and toggles `.screen--hidden`. Scene presenters call it. UI never calls App (§7).
 - **Main menu: "TV signal"** (concept board `05_MainMenu_Variants.jpg`, variant 4).
-  - `Prefabs/UI/MainMenuRoom.prefab` in `MainMenu.unity`: a dark HDRP room (`VP_MainMenu`), the menu camera, an EventSystem, and 5 `MainMenuTv` (Poly Haven Television 01): Create, Join, Settings, Credits, Quit.
+  - `Prefabs/UI/MainMenuRoom.prefab` in `MainMenu.unity`: a dark room (`VP_MainMenu`), the menu camera, an EventSystem, and 5 `MainMenuTv` (Poly Haven Television 01): Create, Join, Settings, Credits, Quit.
   - Each `MainMenuTv` renders its screen through a `CustomRenderTexture` with the `NoWayOut/CRT Screen` shader (`Art/Shaders/CRTScreen.shader`: scanlines, noise, curvature, chromatic shift, line jitter, rolling tear) from a still in `Art/Textures/MainMenu`. Distortion is tweened with PrimeTween: idle → hover → select.
   - `MainMenuView` puts one transparent UI Toolkit button over each TV (projected bounds), with the localized label below it. Input, hover and keyboard focus are plain UI Toolkit events.
   - `MainMenuPresenter`: select → the camera pushes into the TV (full-screen transition) → Create hosts a Relay session, Join shows `JoinCodeView`, Settings/Credits show `ComingSoonView`, Quit publishes `QuitRequestedEvent`. A started session shows `LobbyView` (code, copy, players N/max, Start for the host, Leave).
@@ -458,7 +465,7 @@ The goal is one physical world for everyone, with different perception per playe
 | New config | ScriptableObject class + asset in `Data/` + `RegisterInstance` in the owning scope | `add-config` |
 | New networked object or feature | `NetworkBehaviour` + prefab in `DefaultNetworkPrefabs` + server spawn + authority rules | `add-network-behaviour` |
 | New UI screen or HUD element | UXML/USS + View/Presenter + prefab + `UIScreensConfig` entry + localized strings | `add-ui-screen` |
-| New model | Blender (build script or hand-made) → FBX → HDRP materials → prefab | `blender-asset` |
+| New model | Blender (build script or hand-made) → FBX → URP materials → prefab | `blender-asset` |
 | Design question | Options with ★ → the user picks → GDD tag + Decisions row | `design-decision` |
 | New music track | Suno prompt → stems → `Audio/Music/<Track>/` | `suno-music-prompt` |
 | Compile check / tests | Refresh, console, Editor.log, TestRunnerApi | `unity-compile-check` |

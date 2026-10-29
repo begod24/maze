@@ -11,6 +11,7 @@ The user decides design. Claude prepares the decision and keeps the documents in
 
 - `Docs/GDD.md` (Russian): the pillars (§1), the related sections, and open questions (§16).
 - `Docs/Decisions.md` for anything already decided.
+- `Docs/OpenQuestions.md` for open questions and known contradictions. If the topic touches one, settle it in the same round.
 - If code is affected, the matching section of `Docs/TechnicalOverview.md`.
 
 ## 2. Diagnose
@@ -35,7 +36,7 @@ Ask with **AskUserQuestion**:
 - **GDD:**
   - set the tag (**[DECIDED]**, or **[PROPOSED]** for numbers until they're playtested),
   - rewrite the section in Russian, keeping its style (short paragraphs, tables),
-  - remove the item from §16 "Открытые вопросы" if it's answered,
+  - move the answered item in `Docs/OpenQuestions.md` to "Закрыто" (date and short result), and add any new contradiction found on the way,
   - update "Последнее обновление".
 - **`Docs/Decisions.md`:** add a row with the date, area, decision and why. Move it out of "Open" if it was there.
 - **Technical impact:** update `TechnicalOverview.md` (authority, systems, configs).

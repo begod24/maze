@@ -2,7 +2,7 @@
 
 ## Project
 
-**No Way Out** (RU: «Путь в никуда», working title) is a co-op (2–4 players) first-person psychological horror. The players are stuck in a void of stairs, doors and bridges between heaven and hell, and **each player sees a different version of the same space**. They have to describe what they see over proximity voice and decide whom to trust.
+**No Way Out** (RU: «Путь в никуда», working title) is a co-op (2–4 players, also playable solo) first-person psychological horror. The players are stuck in a void of stairs, doors and bridges between heaven and hell, and **each player sees a different version of the same space**. They have to describe what they see over proximity voice and decide whom to trust.
 
 Unity **6000.3.24f1**, **URP** (Forward+), PC (Steam). Solo developer. **Talk to the user in Russian.**
 
@@ -11,6 +11,8 @@ Unity **6000.3.24f1**, **URP** (Forward+), PC (Steam). Solo developer. **Talk to
 - Design: `Docs/GDD.md` (in Russian). **Read it before any gameplay or design work.** Tags: **[DECIDED]**, **[PROPOSED]**, **[OPEN]**.
 - Architecture: `Docs/TechnicalOverview.md`. **Read it before adding a system, a module or a networked feature.**
 - Decision log: `Docs/Decisions.md`. Add a row whenever a technical or design decision is made.
+- Concept summary: `Docs/VOID.md` (in Russian), the big picture of the run from the 2026-10-29 brainstorm. The GDD wins if they differ.
+- Open questions: `Docs/OpenQuestions.md` (in Russian). **Read it before design work**, ask the user about items the task touches, move answered items to "Закрыто", and add any new contradiction you notice.
 - Code style: @Docs/CodeStyle.md. Follow it for every code change.
 
 ## Working with the user (mandatory)
@@ -45,7 +47,7 @@ Assets/_Project/                    all our content: Scripts, Prefabs, Data, Sce
 Assets/DefaultNetworkPrefabs.asset  NGO-owned default network prefab list. Don't move it
 Assets/AddressableAssetsData/       Addressables-owned (groups, including the Localization groups). Don't move it
 ArtSource/                          Blender sources, build scripts and third-party source files. Unity never imports them
-Docs/                               GDD, TechnicalOverview, CodeStyle, Decisions
+Docs/                               GDD, VOID, OpenQuestions, TechnicalOverview, CodeStyle, Decisions
 Docs/References/ConceptArt/         the original concept boards (key art, entities, UI, characters)
 Docs/References/GDD_v2_Concept.pdf  the second concept document (the source of the GDD)
 .claude/skills/                     project skills

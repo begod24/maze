@@ -250,6 +250,10 @@ GameEntryPoint (root, IAsyncStartable)
   - non-main editors wait `devJoinDelaySeconds` first, so the main editor usually becomes the host,
   - then `GameplayState` loads the Gameplay scene.
   - Risk: if Play Mode stops before the session is left, the stale session can block the next run until the services time it out. Changing `devSessionPrefix` works around it.
+- **Run lifecycle [PLANNED]** (GDD §4.3, §4.6, §4.9):
+  - **Save at each Rest** on the host: seed, part index, biome order, items, lamp oil. "Continue run" in the menu hosts from it. A failed run deletes its save.
+  - **Join any time:** a late joiner is a spectator until the group reaches a Rest, then spawns as a player while the next part is generated for the new group size.
+  - **Host migration:** NGO has none built in. Needs our own: the run state lives in something every client can rebuild (seed, part, saved progress), a new host is picked through the session, and everyone reconnects. After the vertical slice.
 - The `NetworkManager` is a prefab in `Prefabs/Network`. The root scope creates it (DontDestroyOnLoad) the first time something resolves it. **`PlayerPrefab` is empty on purpose**: the gameplay server spawns players once the Gameplay scene is ready.
 
 ### Authority
@@ -283,7 +287,7 @@ GameEntryPoint (root, IAsyncStartable)
 - `Prefabs/Player/Player.prefab`: `NetworkObject`, `NetworkTransform` (Owner authority, position + yaw), `CharacterController`, `PlayerController`, a capsule body, and `CameraPivot/PlayerCamera` (a `CinemachineCamera`, active only for the owner). The Gameplay scene's Main Camera has the `CinemachineBrain`.
 - `PlayerSpawner` (Gameplay/Player, server only) spawns one player object per client at the `PlayerSpawnPoints` of the generated floor's start module (`IFloor.SpawnPoints`) on the events above.
 - `PlayerController` runs only for the owner: `PlayerLook` (yaw on the body, pitch on the pivot) and `PlayerMotor` (walk, sprint, jump, gravity). Tuning is in `PlayerConfig` (`Data/Configs`). The owner's body only casts a shadow.
-- Falling below `PlayerConfig.fallRespawnHeight` teleports the player back to its spawn point [TEMPORARY until death and the Echo are designed, GDD §4.4–4.5].
+- Falling below `PlayerConfig.fallRespawnHeight` teleports the player back to its spawn point [TEMPORARY until the Underside (Изнанка) is built, GDD §4.5].
 - The level is a generated floor (§12). `Gameplay.unity` holds the scope, the camera, `FloorState` and `Lighting` (sun and the `VP_Gameplay` global volume) [TEMPORARY until the void look pass].
 
 ### Testing
@@ -331,6 +335,7 @@ The goal is one physical world for everyone, with different perception per playe
   - **Loop:** the west lane turns back (UTurn), climbs and re-enters the start from the west, and the east lane steers to x = 1,
   
   → junction → two enclosed corridor lanes (separation: heard, not seen) → exit room. Step counts (upper 140–160, lower 90–110), half width, level bounds and chances are in `FloorConfig`. A floor is ~190–300 modules and ~600 m long.
+- **Maze generator [PLANNED]** (GDD §4.1–4.2, §12): graph first — a 3D maze over the cell grid (DFS or Wilson, plus extra loops), the gate high and far from the entry, keys (lights, fuses) low, then modules placed per graph edge (walls, stairs, lifts, shafts) and dead ends filled with content. A tier **archetype** (horizontal maze, Well, Bridges, Escher) and a **biome** (weather, puzzles) are config data, not separate generators. The linear template stays as one archetype. Tiers are built one at a time while the group is at the checkpoint (Rest), so only one tier is in memory.
 - **Build and network.** `FloorState` (in-scene `NetworkObject` in `Gameplay.unity`, auto-injected) picks the seed on the server (`FloorConfig.seed`, 0 = random) into a `NetworkVariable<int>`. Every peer calls `IFloor.Build(seed)` in `OnNetworkSpawn` and instantiates the modules locally under `FloorState`, then `FloorAtmosphere` dresses the floor (§14). The server builds before `OnLoadComplete`, so `PlayerSpawner` finds the start module's spawn points.
 - **Tests:** `FloorGeneratorTests` (200 seeds: determinism, connectivity, joints, overlaps, level bounds, half width, both start variants, loop closure, minimum length, turns and dead ends) and `DeterministicRandomTests`.
 - **Preview without Play Mode:** `Tools → No Way Out → Preview Generated Floor` builds a floor (FloorConfig seed, or random) with its atmosphere into a new additive scene named after the seed. Close it without saving. Particles don't simulate in Edit Mode, so call `ParticleSystem.Simulate` before rendering a preview.
@@ -397,7 +402,7 @@ The goal is one physical world for everyone, with different perception per playe
   - The View queries elements, raises C# events and exposes `Set...` methods. It has no logic and no services.
   - A `<Screen>Presenter` (plain C#, internal, registered in the scene scope by `UIInstaller`) talks to services and the event bus and drives the View. The View gets its Presenter through `[Inject] Construct` and attaches and detaches in `OnEnable`/`OnDisable`.
 - **Showing screens.** `IScreenService` (NoWayOut.UI, Scoped) shows and hides screens by View type. It instantiates them through the scene scope's resolver, from the prefab list in `UIScreensConfig` (`Data/Configs`), and toggles `.screen--hidden`. Scene presenters call it. UI never calls App (§7).
-- **Main menu: "TV signal"** (concept board `05_MainMenu_Variants.jpg`, variant 4).
+- **Main menu: "TV signal"** (concept board `05_MainMenu_Variants.jpg`, variant 4). [TO BE REPLACED] by "Void with the beacon" (variant 3, GDD §11): menu items as lamp-lit doors on floating blocks, the Summit light far above. The TV room below stays until then.
   - `Prefabs/UI/MainMenuRoom.prefab` in `MainMenu.unity`: a dark room (`VP_MainMenu`), the menu camera, an EventSystem, and 5 `MainMenuTv` (Poly Haven Television 01): Create, Join, Settings, Credits, Quit.
   - Each `MainMenuTv` renders its screen through a `CustomRenderTexture` with the `NoWayOut/CRT Screen` shader (`Art/Shaders/CRTScreen.shader`: scanlines, noise, curvature, chromatic shift, line jitter, rolling tear) from a still in `Art/Textures/MainMenu`. Distortion is tweened with PrimeTween: idle → hover → select.
   - `MainMenuView` puts one transparent UI Toolkit button over each TV (projected bounds), with the localized label below it. Input, hover and keyboard focus are plain UI Toolkit events.
@@ -434,6 +439,12 @@ The goal is one physical world for everyone, with different perception per playe
   The music service fades layers (several seconds) from gameplay events. It never changes tempo or composition. Silence is a valid state.
 - **Mixer** (proposed): `Master` → `Music`, `Ambience`, `SFX`, `Voice`, `UI`. Teammates' voices have their own group, so music can duck under them. Voice chat is a core mechanic, so it always wins.
 - Music is generated in Suno and split into stems (see the `suno-music-prompt` skill).
+- **Engine: Unity Audio only** (no FMOD/Wwise), so Vivox voice shares the mixer, the ducking and the world's reverb. Planned pieces (GDD §14):
+  - a **music director** driven by one tension value 0–1 (threats, separation, height, collapse, weather) that fades layers and quantizes stingers to the beat,
+  - **reverb zones** per space type (corridor, shaft, open void, rest) applied to SFX and voice alike,
+  - **occlusion**: a low-pass filter from raycasts through maze walls,
+  - per-player **illusion sounds** (client-local, like visual illusions),
+  - a **silence cue** (all ambience out for 2–3 s) before a hunt.
 
 ---
 
